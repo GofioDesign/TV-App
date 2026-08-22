@@ -1,8 +1,8 @@
-/** ARCHIPIÉLAGO VIVO TV · MENÚ */
+/** TV App · MENU */
 
 function onOpen() {
   SpreadsheetApp.getUi()
-    .createMenu('Archipiélago Vivo TV')
+    .createMenu(TV.MENU_NAME || TV.NAME || 'TV App')
     .addItem('Configurar / validar proyecto', 'setupTvProject')
     .addItem('Instalar / actualizar activadores', 'installTvTriggers')
     .addSeparator()
