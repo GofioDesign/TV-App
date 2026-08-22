@@ -2,11 +2,13 @@
 
 # TV App
 
-**TV App** is a configurable and reusable web television engine designed for independent, cultural, community, and educational projects.
+**TV App** is a configurable and reusable television platform designed for independent, cultural, community, and educational projects.
 
-It combines a Google Apps Script backend with schedule-based programming, editorial media management, and a web player supporting YouTube, Vimeo, PeerTube, and direct video sources.
+It combines a Google Apps Script backend with schedule-based programming, editorial media management, and multiple playback clients. The browser client supports YouTube, Vimeo, PeerTube, and direct video sources; a native Android TV / Google TV client is now being developed against the same instance and feed contract.
 
-The same engine can power multiple TV instances, domains, and editorial projects without modifying application code.
+The same engine can power multiple TV instances, domains, editorial projects, and client surfaces without modifying application code.
+
+> **One instance, one schedule, multiple clients.**
 
 ## One configuration per TV
 
@@ -29,6 +31,19 @@ Instance customization lives in a single `app.config.json` file. It can define:
 The generic reference is [`web/config.example.json`](web/config.example.json).
 
 Archipiélago Vivo is kept only as the first example preset under [`presets/archipielago-vivo/`](presets/archipielago-vivo/). The generic engine does not depend on that preset.
+
+## Clients
+
+TV App clients consume the same instance configuration and public TV feed rather than maintaining separate editorial databases.
+
+```text
+TV App
+├── web/                  browser client
+└── clients/
+    └── android-tv/       native Android TV / Google TV client
+```
+
+The Android TV client foundation uses Compose for TV, Media3 ExoPlayer, MediaSession, deep links and Android TV home-screen channels. See [`docs/MULTIPLATFORM.md`](docs/MULTIPLATFORM.md) and [`clients/android-tv/README.md`](clients/android-tv/README.md).
 
 ## Build an instance
 
@@ -60,14 +75,17 @@ dist/<instance_id>/
 
 The build process generates static SEO/deployment metadata for crawlers and generates the Apps Script instance configuration from the **same JSON source** used by the browser client.
 
+Android TV packaging will consume the same generated instance contract rather than introducing a second configuration format.
+
 ## Repository structure
 
 ```text
-apps-script/     reusable Google Apps Script backend
-web/             reusable browser client
-presets/         instance configuration and assets
-scripts/         build and validation tooling
-docs/            architecture and deployment documentation
+apps-script/          reusable Google Apps Script backend
+web/                  reusable browser client
+clients/android-tv/   native Android TV / Google TV client
+presets/              instance configuration and assets
+scripts/              build and validation tooling
+docs/                 architecture and deployment documentation
 ```
 
 ## License
