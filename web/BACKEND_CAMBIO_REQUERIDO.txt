@@ -1,0 +1,35 @@
+ARCHIPIÉLAGO VIVO TV — REQUISITO BACKEND PARA FRONTEND MULTIPROVEEDOR
+
+El frontend de este paquete reproduce:
+- youtube
+- vimeo
+- peertube
+- direct
+
+El backend actual debe declarar esos mismos proveedores como soportados por el frontend.
+
+En 00_Config.gs sustituir:
+
+FRONTEND_SUPPORTED_PROVIDERS: Object.freeze(['youtube']),
+
+por:
+
+FRONTEND_SUPPORTED_PROVIDERS: Object.freeze([
+  'youtube',
+  'vimeo',
+  'peertube',
+  'direct'
+]),
+
+POR QUÉ ES NECESARIO
+--------------------
+El export público calcula provider_supported_by_frontend y usa ese valor dentro de playable.
+Si no se actualiza esta constante, Vimeo, PeerTube y direct pueden seguir saliendo como playable=false aunque el navegador ya sepa reproducirlos.
+
+No conviene solucionar esto ignorando playable=false en el navegador: ese campo también protege decisiones de estado, derechos, privacidad, embebibilidad y revisión editorial.
+
+Después del cambio:
+1. Validar TV.
+2. Regenerar/publicar feed.json.
+3. Confirmar que tv_config.frontend_supported_providers contiene los cuatro proveedores.
+4. Confirmar en un Vimeo/PeerTube/direct activo que provider_supported_by_frontend=true y playable=true cuando el resto de condiciones también se cumplen.

@@ -1,0 +1,50 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://archipielagovivo.org/#organization",
+      "name": "Archipiélago Vivo",
+      "url": "https://archipielagovivo.org/",
+      "email": "archipielagovivo@riseup.net"
+    },
+    {
+      "@type": "ImageObject",
+      "@id": "https://tv.archipielagovivo.org/#primaryimage",
+      "url": "https://tv.archipielagovivo.org/logo-social-1200x630.png",
+      "contentUrl": "https://tv.archipielagovivo.org/logo-social-1200x630.png",
+      "width": 1200,
+      "height": 630,
+      "caption": "Archipiélago Vivo TV"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://tv.archipielagovivo.org/#website",
+      "url": "https://tv.archipielagovivo.org/",
+      "name": "Archipiélago Vivo TV",
+      "alternateName": "AV TV",
+      "description": "Archipiélago Vivo TV es una televisión online colaborativa de Canarias con contenidos sobre territorio, memoria, cultura, cuidados, investigación y alternativas.",
+      "inLanguage": "es",
+      "publisher": {
+        "@id": "https://archipielagovivo.org/#organization"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://tv.archipielagovivo.org/#webpage",
+      "url": "https://tv.archipielagovivo.org/",
+      "name": "Archipiélago Vivo TV | Televisión colaborativa de Canarias",
+      "description": "Archipiélago Vivo TV es una televisión online colaborativa de Canarias con contenidos sobre territorio, memoria, cultura, cuidados, investigación y alternativas.",
+      "inLanguage": "es",
+      "isPartOf": {
+        "@id": "https://tv.archipielagovivo.org/#website"
+      },
+      "about": {
+        "@id": "https://archipielagovivo.org/#organization"
+      },
+      "primaryImageOfPage": {
+        "@id": "https://tv.archipielagovivo.org/#primaryimage"
+      }
+    }
+  ]
+}
