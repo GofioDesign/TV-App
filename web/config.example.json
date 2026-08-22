@@ -8,20 +8,10 @@
   "timezone": "UTC",
   "site_url": "https://tv.example.org/",
   "default_channel": "general",
-
-  "data": {
-    "feed_url": "https://data.example.org/tv/feed.json"
-  },
-
-  "providers": [
-    "youtube",
-    "vimeo",
-    "peertube",
-    "direct"
-  ],
-
+  "data": {"feed_url": "https://data.example.org/tv/feed.json"},
+  "providers": ["youtube", "vimeo", "peertube", "direct"],
   "branding": {
-    "logo": "assets/tv-app.svg",
+    "logo": "assets/my-tv.svg",
     "logo_alt": "My TV",
     "social_image": "assets/social-1200x630.png",
     "favicon": "favicon.ico",
@@ -29,7 +19,6 @@
     "color_scheme": "dark",
     "theme": "default"
   },
-
   "seo": {
     "title": "My TV | Online television",
     "description": "A configurable online television powered by TV App.",
@@ -41,44 +30,36 @@
     "twitter_site": "",
     "twitter_creator": ""
   },
-
   "publisher": {
     "name": "Example Organization",
     "url": "https://example.org/",
-    "email": ""
+    "email": "hello@example.org"
   },
-
   "navigation": {
     "enabled": true,
     "aria_label": "Main navigation",
     "brand_url": "https://example.org/",
     "items": [
-      {
-        "label": "Home",
-        "url": "https://example.org/"
-      },
-      {
-        "label": "TV",
-        "url": "https://tv.example.org/",
-        "current": true
-      },
-      {
-        "label": "Contact",
-        "url": "https://example.org/contact"
-      }
+      {"label": "Home", "url": "https://example.org/"},
+      {"label": "TV", "url": "https://tv.example.org/", "current": true},
+      {"label": "Contact", "url": "https://example.org/contact"}
     ]
   },
-
   "ui": {
     "channel_label": "CHANNEL",
     "loading_channel": "Loading…",
+    "programming_placeholder": "Programming",
     "current_program": "Programming",
     "player_aria_label": "Live television broadcast",
     "loading_schedule": "Loading schedule…",
     "standby_message": "Programming in preparation",
+    "standby_program": "Programming",
     "continuity_aria_label": "Upcoming programme changes",
     "entity_map_label": "View profile",
     "entity_qr_alt": "QR code for entity profile",
+    "entity_fallback_name": "View profile",
+    "video_label": "Video",
+    "media_original_aria_template": "{title} · open original video",
     "info_panel_aria_label": "Broadcast information",
     "info_kicker": "NOW ON AIR",
     "info_title": "Broadcast information",
@@ -99,6 +80,24 @@
       "correction": "Report an error or correction",
       "removal": "Request removal of this video"
     },
+    "share": {
+      "entity_template": "I'm watching the presentation of {entity} on {tv}",
+      "generic_template": "I'm watching {emission} on {tv}",
+      "default_topic": "",
+      "copied": "Link copied",
+      "copy_prompt": "Copy this content to share the broadcast:"
+    },
+    "intermission": {
+      "brand_line": "My TV",
+      "continue_message": "We will continue shortly"
+    },
+    "continuity": {"countdown_prefix": "IN"},
+    "errors": {
+      "feed_schema": "The TV endpoint is not publishing a compatible schema.",
+      "no_channels": "There are no active channels.",
+      "feed_load": "The broadcast could not be loaded",
+      "player_missing": "The multi-provider player could not be loaded."
+    },
     "controls": {
       "group_aria_label": "Broadcast controls",
       "info": "Info",
@@ -109,7 +108,6 @@
       "unmute": "Unmute"
     }
   },
-
   "requests": {
     "enabled": false,
     "form_url": "",
@@ -121,13 +119,11 @@
       "removal": "Request video removal"
     }
   },
-
-  "entities": {
-    "enabled": false
-  },
-
+  "entities": {"enabled": false},
   "analytics": {
     "enabled": false,
-    "script_url": ""
+    "script_url": "",
+    "global_object": "",
+    "track_method": "track"
   }
 }
