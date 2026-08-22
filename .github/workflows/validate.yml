@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - refactor/generic-engine
+      - feature/android-tv-client
   pull_request:
 
 permissions:
@@ -51,7 +51,42 @@ jobs:
           grep -q 'Archipiélago Vivo TV' dist/ci-archipielago-vivo/apps-script/00_Instance_Config.gs
           grep -q 'tv.archipielagovivo.org' dist/ci-archipielago-vivo/web/CNAME
 
+      - name: Validate Android TV scaffold
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          root = Path('clients/android-tv')
+          required = [
+              root / 'settings.gradle.kts',
+              root / 'build.gradle.kts',
+              root / 'app/build.gradle.kts',
+              root / 'app/src/main/AndroidManifest.xml',
+              root / 'app/src/main/res/values/strings.xml',
+              root / 'app/src/main/res/values/styles.xml',
+              root / 'app/src/main/res/drawable/tv_banner.xml',
+          ]
+          for path in required:
+              if not path.is_file():
+                  raise SystemExit(f'Missing Android TV scaffold file: {path}')
+
+          for path in required[3:]:
+              ET.parse(path)
+
+          manifest = (root / 'app/src/main/AndroidManifest.xml').read_text()
+          if 'android.intent.category.LEANBACK_LAUNCHER' not in manifest:
+              raise SystemExit('Android TV launcher category is missing')
+          if 'android.hardware.touchscreen' not in manifest or 'android:required="false"' not in manifest:
+              raise SystemExit('Touchscreen must be optional for Android TV')
+
+          gradle = (root / 'app/build.gradle.kts').read_text()
+          if 'tvAppConfig' not in gradle or 'app.config.json' not in gradle:
+              raise SystemExit('Android TV build is not wired to the shared app.config.json contract')
+          PY
+
       - name: Ensure generic engine has no instance hardcodes
         run: |
           ! grep -RniE 'Archipi[eé]lago Vivo|archipielagovivo|ARCHIPI[EÉ]LAGO VIVO|AVAnalytics' web apps-script scripts \
             --exclude='config.example.json'
+          ! grep -RniE 'Archipi[eé]lago Vivo|archipielagovivo|ARCHIPI[EÉ]LAGO VIVO|AVAnalytics' clients/android-tv/app
