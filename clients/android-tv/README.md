@@ -24,19 +24,48 @@ The goal is **one instance, one schedule, multiple clients**.
 
 ## Current foundation
 
-The initial native client establishes the platform contract:
+The native client now establishes the first working platform contract:
 
 - TV-only launcher through `CATEGORY_LEANBACK_LAUNCHER`;
 - touchscreen declared as optional;
 - remote/D-pad-first Compose for TV UI;
 - Media3 ExoPlayer + `MediaSession` playback foundation;
 - deep-link contract `tvapp://channel/<channel_id>`;
-- permission and dependency foundation for Android TV home-screen channels;
+- permission and API 26+ foundation for Android TV home-screen channels;
+- the selected TV App `app.config.json` is packaged into the Android app at build time;
+- Android loads and validates that shared configuration on startup;
 - no dependency on Archipiélago Vivo or any other instance.
+
+## Build an instance-specific Android client
+
+The Android Gradle build accepts the same TV App configuration used by the web/backend builder.
+
+Generic TV App configuration:
+
+```bash
+./gradlew :app:assembleDebug
+```
+
+A configured instance:
+
+```bash
+./gradlew :app:assembleDebug \
+  -PtvAppConfig=../../presets/archipielago-vivo/app.config.json
+```
+
+The Gradle task copies the selected file into the APK as:
+
+```text
+assets/app.config.json
+```
+
+`InstanceConfigLoader` validates `schema_version >= 2` and reads the instance ID, name, timezone, default channel, feed URL and provider list. The next layer will fetch the feed from that configured `data.feed_url`.
+
+The Gradle wrapper is deliberately not committed yet. Open this directory in the current stable Android Studio and generate/update the wrapper before the first device build.
 
 ## Instance data
 
-The Android client will consume these generic fields from TV App:
+The Android client consumes these generic fields from TV App:
 
 ```text
 app.config.json
@@ -88,16 +117,13 @@ The scaffold follows the current Android TV recommendations:
 - Media3 ExoPlayer and MediaSession;
 - JDK 17 / Android Gradle Plugin 9.3.x.
 
-The Gradle wrapper is deliberately not committed yet. Open this directory in the current stable Android Studio and generate/update the wrapper from the IDE before the first device build.
-
 ## Next implementation steps
 
-1. Load the generated TV App `app.config.json`.
-2. Fetch and validate `feed.json` schema v2.
-3. Port the deterministic schedule resolver to a shared client contract/test suite.
-4. Resolve the current broadcast for a selected channel.
-5. Map direct/HLS media to Media3.
-6. Define provider strategy for YouTube, Vimeo and PeerTube on native TV.
-7. Publish configured TV App channels to the Android TV home screen on API 26+.
-8. Add Watch Next where it makes editorial sense.
-9. Add Google Cast after native playback is stable.
+1. Fetch and validate `feed.json` schema v2.
+2. Port the deterministic schedule resolver to a shared client contract/test suite.
+3. Resolve the current broadcast for a selected channel.
+4. Map direct/HLS media to Media3.
+5. Define provider strategy for YouTube, Vimeo and PeerTube on native TV.
+6. Publish configured TV App channels and programmes to the Android TV home screen on API 26+.
+7. Add Watch Next where it makes editorial sense.
+8. Add Google Cast after native playback is stable.
