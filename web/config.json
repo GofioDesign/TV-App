@@ -7,9 +7,28 @@
   "locale": "en_US",
   "timezone": "UTC",
   "site_url": "",
-  "default_channel": "",
+  "default_channel": "general",
   "data": {"feed_url": ""},
   "providers": ["youtube", "vimeo", "peertube", "direct"],
+  "backend": {
+    "menu_name": "TV App",
+    "database_name": "TV App — DB",
+    "public_feed_target": "",
+    "default_channel_id": "general",
+    "entity_program_id": "entities",
+    "default_status": "Active",
+    "request_pending_status": "Pending",
+    "media_status_active": "Active",
+    "media_status_inactive": "Inactive",
+    "media_status_retired": "Retired",
+    "media_status_pending_review": "Pending review",
+    "orphaned_relation_reason": "orphaned_entity_relation",
+    "entity_relation_type": "entity_profile",
+    "entity_media_source": "entity-sync",
+    "entity_media_sources": ["entity-sync"],
+    "external_rights_allowed": ["embed_only", "authorized"],
+    "new_entity_hours": 72
+  },
   "branding": {
     "logo": "assets/tv-app.svg",
     "logo_alt": "TV App",
@@ -83,9 +102,7 @@
       "brand_line": "TV App",
       "continue_message": "We will continue shortly"
     },
-    "continuity": {
-      "countdown_prefix": "IN"
-    },
+    "continuity": {"countdown_prefix": "IN"},
     "errors": {
       "feed_schema": "The TV endpoint is not publishing a compatible schema.",
       "no_channels": "There are no active channels.",
