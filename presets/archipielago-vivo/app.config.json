@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "instance_id": "archipielago-vivo",
+  "name": "Archipiélago Vivo TV",
+  "short_name": "AV TV",
+  "language": "es",
+  "timezone": "Atlantic/Canary",
+  "site_url": "https://tv.archipielagovivo.org/",
+  "default_channel": "general",
+  "data": {
+    "feed_url": "https://data.archipielagovivo.org/tv/feed.json"
+  },
+  "providers": ["youtube", "vimeo", "peertube", "direct"],
+  "requests": {
+    "enabled": true,
+    "form_url": "https://docs.google.com/forms/d/e/1FAIpQLSdhaM7hTEJRaSY8MOtgpu24R4NJwMrFi-qIL0IvR7esBiimVQ/viewform",
+    "type_entry": "entry.1784490314",
+    "url_entry": "entry.654634758"
+  },
+  "entities": {
+    "enabled": true
+  },
+  "analytics": {
+    "script_url": "https://archipielagovivo.org/analytics.js"
+  },
+  "branding": {
+    "logo": "logo.svg",
+    "social_image": "logo-social-1200x630.png",
+    "theme": "default"
+  }
+}
