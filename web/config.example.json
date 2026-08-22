@@ -1,36 +1,133 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "instance_id": "my-tv",
   "name": "My TV",
   "short_name": "TV",
   "language": "en",
+  "locale": "en_US",
   "timezone": "UTC",
   "site_url": "https://tv.example.org/",
   "default_channel": "general",
+
   "data": {
     "feed_url": "https://data.example.org/tv/feed.json"
   },
+
   "providers": [
     "youtube",
     "vimeo",
     "peertube",
     "direct"
   ],
+
+  "branding": {
+    "logo": "assets/tv-app.svg",
+    "logo_alt": "My TV",
+    "social_image": "assets/social-1200x630.png",
+    "favicon": "favicon.ico",
+    "theme_color": "#000000",
+    "color_scheme": "dark",
+    "theme": "default"
+  },
+
+  "seo": {
+    "title": "My TV | Online television",
+    "description": "A configurable online television powered by TV App.",
+    "robots": "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1",
+    "canonical_url": "https://tv.example.org/",
+    "og_type": "website",
+    "og_site_name": "My TV",
+    "twitter_card": "summary_large_image",
+    "twitter_site": "",
+    "twitter_creator": ""
+  },
+
+  "publisher": {
+    "name": "Example Organization",
+    "url": "https://example.org/",
+    "email": ""
+  },
+
+  "navigation": {
+    "enabled": true,
+    "aria_label": "Main navigation",
+    "brand_url": "https://example.org/",
+    "items": [
+      {
+        "label": "Home",
+        "url": "https://example.org/"
+      },
+      {
+        "label": "TV",
+        "url": "https://tv.example.org/",
+        "current": true
+      },
+      {
+        "label": "Contact",
+        "url": "https://example.org/contact"
+      }
+    ]
+  },
+
+  "ui": {
+    "channel_label": "CHANNEL",
+    "loading_channel": "Loading…",
+    "current_program": "Programming",
+    "player_aria_label": "Live television broadcast",
+    "loading_schedule": "Loading schedule…",
+    "standby_message": "Programming in preparation",
+    "continuity_aria_label": "Upcoming programme changes",
+    "entity_map_label": "View profile",
+    "entity_qr_alt": "QR code for entity profile",
+    "info_panel_aria_label": "Broadcast information",
+    "info_kicker": "NOW ON AIR",
+    "info_title": "Broadcast information",
+    "info_close": "Close information",
+    "labels": {
+      "channel": "Channel",
+      "program": "Programme",
+      "now": "Now",
+      "entity": "Entity",
+      "territory": "Territory"
+    },
+    "participation": {
+      "enabled": true,
+      "label": "Participate",
+      "aria_label": "Participate in this TV",
+      "description": "Programming is collaborative. You can propose content or report an issue with this broadcast.",
+      "proposal": "Propose a video",
+      "correction": "Report an error or correction",
+      "removal": "Request removal of this video"
+    },
+    "controls": {
+      "group_aria_label": "Broadcast controls",
+      "info": "Info",
+      "share": "Share",
+      "fullscreen": "Fullscreen",
+      "exit_fullscreen": "Exit fullscreen",
+      "mute": "Mute",
+      "unmute": "Unmute"
+    }
+  },
+
   "requests": {
     "enabled": false,
     "form_url": "",
     "type_entry": "",
-    "url_entry": ""
+    "url_entry": "",
+    "types": {
+      "proposal": "Propose a video",
+      "correction": "Report a problem or correction",
+      "removal": "Request video removal"
+    }
   },
+
   "entities": {
     "enabled": false
   },
+
   "analytics": {
+    "enabled": false,
     "script_url": ""
-  },
-  "branding": {
-    "logo": "logo.svg",
-    "social_image": "logo-social-1200x630.png",
-    "theme": "default"
   }
 }
