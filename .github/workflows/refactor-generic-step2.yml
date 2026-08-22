@@ -1,0 +1,328 @@
+name: Refactor generic backend metadata
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/refactor-generic-step2.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  refactor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/generic-engine
+
+      - name: Apply backend metadata refactor
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          root = Path("apps-script")
+
+          p = root / "00_Config.gs"
+          s = p.read_text()
+          old = """  // El frontend actual sigue reproduciendo mediante YouTube IFrame API.
+            // Vimeo/PeerTube/direct se exportan, pero no se programan hasta que
+            // el frontend incorpore adaptadores de reproducción para esos proveedores.
+            FRONTEND_SUPPORTED_PROVIDERS: Object.freeze(['youtube']),"""
+          new = """  // El reproductor web dispone de adaptadores para los cuatro proveedores.
+            FRONTEND_SUPPORTED_PROVIDERS: Object.freeze([
+              'youtube',
+              'vimeo',
+              'peertube',
+              'direct'
+            ]),"""
+          assert old in s
+          p.write_text(s.replace(old, new, 1))
+
+          p = root / "01_Menu.gs"
+          s = p.read_text()
+          old = """    .addItem('Media · Actualizar metadatos', 'refreshTvMediaMetadata')
+              .addItem('Media · Actualizar solo YouTube', 'refreshTvMediaYouTubeMetadata')"""
+          new = """    .addItem('Media · Actualizar metadatos marcados', 'refreshTvMediaMetadata')"""
+          assert old in s
+          p.write_text(s.replace(old, new, 1))
+
+          p = root / "30_Media.gs"
+          s = p.read_text()
+          old = """    reviewed_at: '',
+              reviewed_by: ''
+            };"""
+          new = """    reviewed_at: '',
+              reviewed_by: '',
+              refresh_metadata: true,
+              metadata_refresh_error: ''
+            };"""
+          assert old in s
+          s = s.replace(old, new, 1)
+          s = s.replace("'Metadatos actualizados.\\n\\n' +", "'Metadatos marcados actualizados.\\n\\n' +", 1)
+
+          match = re.search(r"function refreshTvMediaDirectMetadataInternal_\(\) \{.*?\n\}", s, re.S)
+          assert match
+          replacement = """function refreshTvMediaDirectMetadataInternal_() {
+            const sheet = getTvSheet_(TV.SHEETS.MEDIA);
+            tvAssertHeaders_(sheet, TV.MEDIA_HEADERS);
+            const records = tvReadObjects_(sheet).filter(function(record) {
+              return (
+                tvNormalizeProvider_(record.provider) === 'direct' &&
+                tvBoolean_(record.refresh_metadata, false)
+              );
+            });
+
+            let updated = 0;
+            let unavailable = 0;
+            const errors = [];
+
+            records.forEach(function(record) {
+              const parsed = parseTvMediaIdentity_(record);
+              if (!parsed) {
+                const message = 'No se pudo resolver la identidad de vídeo directo.';
+                tvPatchMediaTechnical_(record._rowNumber, {
+                  refresh_metadata: true,
+                  metadata_refresh_error: message
+                });
+                errors.push(String(record.media_id || 'fila ' + record._rowNumber) + ': ' + message);
+                unavailable++;
+                return;
+              }
+
+              tvPatchMediaTechnical_(record._rowNumber, {
+                provider: parsed.provider,
+                provider_id: parsed.provider_id,
+                provider_url: parsed.provider_url,
+                embed_url: parsed.embed_url,
+                embeddable: true,
+                metadata_updated_at: new Date(),
+                refresh_metadata: false,
+                metadata_refresh_error: ''
+              });
+              updated++;
+            });
+
+            return {
+              total: records.length,
+              updated: updated,
+              unavailable: unavailable,
+              errors: errors
+            };
+          }"""
+          s = s[:match.start()] + replacement + s[match.end():]
+          p.write_text(s)
+
+          p = root / "32_Provider_Vimeo.gs"
+          s = p.read_text()
+          match = re.search(r"function refreshTvMediaVimeoMetadataInternal_\(\) \{.*?\n\}\n\nfunction extractIframeSrc_", s, re.S)
+          assert match
+          replacement = """function refreshTvMediaVimeoMetadataInternal_() {
+            const sheet = getTvSheet_(TV.SHEETS.MEDIA);
+            tvAssertHeaders_(sheet, TV.MEDIA_HEADERS);
+            const records = tvReadObjects_(sheet).filter(function(record) {
+              return (
+                tvNormalizeProvider_(record.provider) === 'vimeo' &&
+                tvBoolean_(record.refresh_metadata, false)
+              );
+            });
+
+            let updated = 0;
+            let unavailable = 0;
+            const errors = [];
+
+            records.forEach(function(record) {
+              const identity = parseTvMediaIdentity_(record);
+              if (!identity) {
+                const message = 'No se pudo resolver la identidad Vimeo.';
+                tvPatchMediaTechnical_(record._rowNumber, {
+                  refresh_metadata: true,
+                  metadata_refresh_error: message
+                });
+                errors.push(String(record.media_id || 'fila ' + record._rowNumber) + ': ' + message);
+                unavailable++;
+                return;
+              }
+
+              try {
+                const endpoint = 'https://vimeo.com/api/oembed.json?url=' + encodeURIComponent(identity.provider_url);
+                const response = UrlFetchApp.fetch(endpoint, {
+                  method: 'get',
+                  muteHttpExceptions: true,
+                  followRedirects: true,
+                  headers: { Accept: 'application/json' }
+                });
+                const responseCode = response.getResponseCode();
+                if (responseCode < 200 || responseCode >= 300) {
+                  const message = 'Vimeo oEmbed respondió HTTP ' + responseCode + '.';
+                  tvPatchMediaTechnical_(record._rowNumber, {
+                    refresh_metadata: true,
+                    metadata_refresh_error: message
+                  });
+                  errors.push(String(record.media_id || identity.provider_id) + ': ' + message);
+                  unavailable++;
+                  return;
+                }
+                const data = JSON.parse(response.getContentText() || '{}');
+                const embedFromHtml = extractIframeSrc_(data.html || '') || identity.embed_url;
+
+                tvPatchMediaTechnical_(record._rowNumber, {
+                  provider: 'vimeo',
+                  provider_id: identity.provider_id,
+                  provider_url: identity.provider_url,
+                  embed_url: embedFromHtml,
+                  title: data.title || record.title || '',
+                  channel_title: data.author_name || record.channel_title || '',
+                  thumbnail: data.thumbnail_url || record.thumbnail || '',
+                  duration_seconds: data.duration === undefined ? record.duration_seconds : data.duration,
+                  published_at: data.upload_date ? new Date(data.upload_date) : record.published_at,
+                  embeddable: true,
+                  metadata_updated_at: new Date(),
+                  refresh_metadata: false,
+                  metadata_refresh_error: ''
+                });
+                updated++;
+              } catch (error) {
+                const message = error && error.message ? error.message : String(error);
+                tvPatchMediaTechnical_(record._rowNumber, {
+                  refresh_metadata: true,
+                  metadata_refresh_error: message
+                });
+                console.warn('Vimeo ' + identity.provider_id + ': ' + message);
+                errors.push(String(record.media_id || identity.provider_id) + ': ' + message);
+                unavailable++;
+              }
+            });
+
+            return {
+              total: records.length,
+              updated: updated,
+              unavailable: unavailable,
+              errors: errors
+            };
+          }
+
+          function extractIframeSrc_"""
+          s = s[:match.start()] + replacement + s[match.end():]
+          p.write_text(s)
+
+          p = root / "33_Provider_PeerTube.gs"
+          s = p.read_text()
+          match = re.search(r"function refreshTvMediaPeerTubeMetadataInternal_\(\) \{.*?\n\}\s*$", s, re.S)
+          assert match
+          replacement = """function refreshTvMediaPeerTubeMetadataInternal_() {
+            const sheet = getTvSheet_(TV.SHEETS.MEDIA);
+            tvAssertHeaders_(sheet, TV.MEDIA_HEADERS);
+            const records = tvReadObjects_(sheet).filter(function(record) {
+              return (
+                tvNormalizeProvider_(record.provider) === 'peertube' &&
+                tvBoolean_(record.refresh_metadata, false)
+              );
+            });
+
+            let updated = 0;
+            let unavailable = 0;
+            const errors = [];
+
+            records.forEach(function(record) {
+              const identity = parseTvMediaIdentity_(record);
+              if (!identity || !identity.origin) {
+                const message = 'No se pudo resolver la identidad PeerTube.';
+                tvPatchMediaTechnical_(record._rowNumber, {
+                  refresh_metadata: true,
+                  metadata_refresh_error: message
+                });
+                errors.push(String(record.media_id || 'fila ' + record._rowNumber) + ': ' + message);
+                unavailable++;
+                return;
+              }
+
+              try {
+                const endpoint = identity.origin + '/api/v1/videos/' + encodeURIComponent(identity.provider_id);
+                const response = UrlFetchApp.fetch(endpoint, {
+                  method: 'get',
+                  muteHttpExceptions: true,
+                  followRedirects: true,
+                  headers: { Accept: 'application/json' }
+                });
+                const responseCode = response.getResponseCode();
+                if (responseCode < 200 || responseCode >= 300) {
+                  const message = 'PeerTube respondió HTTP ' + responseCode + '.';
+                  tvPatchMediaTechnical_(record._rowNumber, {
+                    refresh_metadata: true,
+                    metadata_refresh_error: message
+                  });
+                  errors.push(String(record.media_id || identity.provider_id) + ': ' + message);
+                  unavailable++;
+                  return;
+                }
+
+                const data = JSON.parse(response.getContentText() || '{}');
+                const thumbnail = data.thumbnailPath
+                  ? identity.origin + data.thumbnailPath
+                  : (data.previewPath ? identity.origin + data.previewPath : record.thumbnail || '');
+                const channelTitle = data.channel && (data.channel.displayName || data.channel.name)
+                  ? (data.channel.displayName || data.channel.name)
+                  : record.channel_title || '';
+                const privacy = data.privacy && (data.privacy.label || data.privacy.id)
+                  ? String(data.privacy.label || data.privacy.id)
+                  : record.privacy_status || '';
+
+                tvPatchMediaTechnical_(record._rowNumber, {
+                  provider: 'peertube',
+                  provider_id: identity.provider_id,
+                  provider_url: identity.provider_url,
+                  embed_url: identity.embed_url,
+                  title: data.name || record.title || '',
+                  description: data.description || record.description || '',
+                  channel_title: channelTitle,
+                  thumbnail: thumbnail,
+                  published_at: data.publishedAt ? new Date(data.publishedAt) : record.published_at,
+                  duration_seconds: data.duration === undefined ? record.duration_seconds : data.duration,
+                  privacy_status: privacy,
+                  embeddable: true,
+                  metadata_updated_at: new Date(),
+                  refresh_metadata: false,
+                  metadata_refresh_error: ''
+                });
+                updated++;
+              } catch (error) {
+                const message = error && error.message ? error.message : String(error);
+                tvPatchMediaTechnical_(record._rowNumber, {
+                  refresh_metadata: true,
+                  metadata_refresh_error: message
+                });
+                console.warn('PeerTube ' + identity.provider_id + ': ' + message);
+                errors.push(String(record.media_id || identity.provider_id) + ': ' + message);
+                unavailable++;
+              }
+            });
+
+            return {
+              total: records.length,
+              updated: updated,
+              unavailable: unavailable,
+              errors: errors
+            };
+          }
+          """
+          s = s[:match.start()] + replacement + s[match.end():]
+          p.write_text(s)
+
+      - name: Validate Apps Script JavaScript syntax
+        run: |
+          set -e
+          for f in apps-script/*.gs; do
+            cp "$f" /tmp/check.js
+            node --check /tmp/check.js
+          done
+
+      - name: Commit refactor branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps-script/00_Config.gs apps-script/01_Menu.gs apps-script/30_Media.gs apps-script/32_Provider_Vimeo.gs apps-script/33_Provider_PeerTube.gs
+          git commit -m "refactor: make metadata refresh selective across providers"
+          git push origin HEAD:refactor/generic-engine
