@@ -1,16 +1,104 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "instance_id": "archipielago-vivo",
   "name": "Archipiélago Vivo TV",
   "short_name": "AV TV",
   "language": "es",
+  "locale": "es_ES",
   "timezone": "Atlantic/Canary",
   "site_url": "https://tv.archipielagovivo.org/",
   "default_channel": "general",
+
   "data": {
     "feed_url": "https://data.archipielagovivo.org/tv/feed.json"
   },
+
   "providers": ["youtube", "vimeo", "peertube", "direct"],
+
+  "branding": {
+    "logo": "logo.svg",
+    "logo_alt": "Archipiélago Vivo TV",
+    "social_image": "logo-social-1200x630.png",
+    "favicon": "favicon.ico",
+    "theme_color": "#000000",
+    "color_scheme": "dark",
+    "theme": "default"
+  },
+
+  "seo": {
+    "title": "Archipiélago Vivo TV | Televisión colaborativa de Canarias",
+    "description": "Archipiélago Vivo TV es una televisión online colaborativa de Canarias con contenidos sobre territorio, memoria, cultura, cuidados, investigación y alternativas.",
+    "robots": "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1",
+    "canonical_url": "https://tv.archipielagovivo.org/",
+    "og_type": "website",
+    "og_site_name": "Archipiélago Vivo",
+    "twitter_card": "summary_large_image",
+    "twitter_site": "@ArchplgVivo",
+    "twitter_creator": "@ArchplgVivo"
+  },
+
+  "publisher": {
+    "name": "Archipiélago Vivo",
+    "url": "https://archipielagovivo.org/",
+    "email": "archipielagovivo@riseup.net"
+  },
+
+  "navigation": {
+    "enabled": true,
+    "aria_label": "Archipiélago Vivo",
+    "brand_url": "https://archipielagovivo.org/",
+    "items": [
+      {"label": "Qué es", "url": "https://archipielagovivo.org/#que-es"},
+      {"label": "Mapa", "url": "https://archipielagovivo.org/mapa.html"},
+      {"label": "Agenda", "url": "https://archipielagovivo.org/agenda.html"},
+      {"label": "Inscripción", "url": "https://inscripcion.archipielagovivo.org/"},
+      {"label": "TV", "url": "https://tv.archipielagovivo.org/", "current": true},
+      {"label": "Comunidad", "url": "https://chat.whatsapp.com/HhhMOfygVpe51BZMyk6mzS", "target": "_blank"},
+      {"label": "Contacto", "url": "https://archipielagovivo.org/#contacto"}
+    ]
+  },
+
+  "ui": {
+    "channel_label": "CANAL",
+    "loading_channel": "Cargando…",
+    "current_program": "Programación",
+    "player_aria_label": "Emisión de Archipiélago Vivo TV",
+    "loading_schedule": "Cargando parrilla…",
+    "standby_message": "Programación en preparación",
+    "continuity_aria_label": "Próximos cambios de programa",
+    "entity_map_label": "Ver ficha en el mapa",
+    "entity_qr_alt": "Código QR de la ficha en el mapa",
+    "info_panel_aria_label": "Información de la emisión",
+    "info_kicker": "AHORA EN ARCHIPIÉLAGO VIVO TV",
+    "info_title": "Información de la emisión",
+    "info_close": "Cerrar información",
+    "labels": {
+      "channel": "Canal",
+      "program": "Programa",
+      "now": "Ahora",
+      "entity": "Entidad",
+      "territory": "Territorio"
+    },
+    "participation": {
+      "enabled": true,
+      "label": "Participa",
+      "aria_label": "Participa en Archipiélago Vivo TV",
+      "description": "La programación es colaborativa. Puedes proponer contenidos o avisarnos si esta emisión necesita revisión.",
+      "proposal": "Proponer un vídeo",
+      "correction": "Comunicar un error o corrección",
+      "removal": "Solicitar la retirada de este vídeo"
+    },
+    "controls": {
+      "group_aria_label": "Controles de la emisión",
+      "info": "Info",
+      "share": "Compartir",
+      "fullscreen": "Pantalla completa",
+      "exit_fullscreen": "Salir de pantalla completa",
+      "mute": "Silenciar",
+      "unmute": "Activar sonido"
+    }
+  },
+
   "requests": {
     "enabled": true,
     "form_url": "https://docs.google.com/forms/d/e/1FAIpQLSdhaM7hTEJRaSY8MOtgpu24R4NJwMrFi-qIL0IvR7esBiimVQ/viewform",
@@ -22,15 +110,13 @@
       "removal": "Solicitar la retirada de un vídeo"
     }
   },
+
   "entities": {
     "enabled": true
   },
+
   "analytics": {
+    "enabled": true,
     "script_url": "https://archipielagovivo.org/analytics.js"
-  },
-  "branding": {
-    "logo": "logo.svg",
-    "social_image": "logo-social-1200x630.png",
-    "theme": "default"
   }
 }
