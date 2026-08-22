@@ -1,3 +1,5 @@
+![TV App](TV-Image.png)
+
 # TV App
 TV App is a configurable and reusable web television engine designed for independent, cultural, community and educational projects. It combines a Google Apps Script backend with schedule-based programming, editorial media management and a web player supporting YouTube, Vimeo, PeerTube and direct video sources.
 
