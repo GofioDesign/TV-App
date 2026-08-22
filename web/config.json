@@ -1,0 +1,164 @@
+{
+  "schema_version": 2,
+  "instance_id": "tv-app",
+  "name": "TV App",
+  "short_name": "TV",
+  "language": "en",
+  "locale": "en_US",
+  "timezone": "UTC",
+  "site_url": "",
+  "default_channel": "general",
+  "data": {
+    "feed_url": ""
+  },
+  "providers": [
+    "youtube",
+    "vimeo",
+    "peertube",
+    "direct"
+  ],
+  "backend": {
+    "menu_name": "TV App",
+    "database_name": "TV App — DB",
+    "public_feed_target": "",
+    "default_channel_id": "general",
+    "entity_program_id": "entities",
+    "default_status": "Active",
+    "request_pending_status": "Pending",
+    "media_status_active": "Active",
+    "media_status_inactive": "Inactive",
+    "media_status_retired": "Retired",
+    "media_status_pending_review": "Pending review",
+    "orphaned_relation_reason": "orphaned_entity_relation",
+    "entity_relation_type": "entity_profile",
+    "entity_media_source": "entity-sync",
+    "entity_media_sources": [
+      "entity-sync"
+    ],
+    "external_rights_allowed": [
+      "embed_only",
+      "authorized"
+    ],
+    "new_entity_hours": 72
+  },
+  "branding": {
+    "logo": "assets/tv-app.svg",
+    "logo_alt": "TV App",
+    "social_image": "",
+    "favicon": "assets/tv-app.svg",
+    "theme_color": "#000000",
+    "color_scheme": "dark",
+    "theme": "default",
+    "icons": []
+  },
+  "seo": {
+    "title": "TV App",
+    "description": "Configurable web television engine.",
+    "robots": "noindex,nofollow",
+    "canonical_url": "",
+    "og_type": "website",
+    "og_site_name": "TV App",
+    "twitter_card": "summary_large_image",
+    "twitter_site": "",
+    "twitter_creator": ""
+  },
+  "publisher": {
+    "name": "",
+    "url": "",
+    "email": ""
+  },
+  "navigation": {
+    "enabled": false,
+    "aria_label": "Main navigation",
+    "brand_url": "",
+    "items": []
+  },
+  "ui": {
+    "channel_label": "CHANNEL",
+    "loading_channel": "Loading…",
+    "programming_placeholder": "Programming",
+    "current_program": "Programming",
+    "player_aria_label": "Live television broadcast",
+    "loading_schedule": "Loading schedule…",
+    "standby_message": "Programming in preparation",
+    "standby_program": "Programming",
+    "continuity_aria_label": "Upcoming programme changes",
+    "entity_map_label": "View profile",
+    "entity_qr_alt": "QR code for entity profile",
+    "entity_fallback_name": "View profile",
+    "video_label": "Video",
+    "media_original_aria_template": "{title} · open original video",
+    "info_panel_aria_label": "Broadcast information",
+    "info_kicker": "NOW ON AIR",
+    "info_title": "Broadcast information",
+    "info_close": "Close information",
+    "labels": {
+      "channel": "Channel",
+      "program": "Programme",
+      "now": "Now",
+      "entity": "Entity",
+      "territory": "Territory"
+    },
+    "participation": {
+      "enabled": true,
+      "label": "Participate",
+      "aria_label": "Participate in this TV",
+      "description": "Programming is collaborative. You can propose content or report an issue with this broadcast.",
+      "proposal": "Propose a video",
+      "correction": "Report an error or correction",
+      "removal": "Request removal of this video"
+    },
+    "share": {
+      "entity_template": "I'm watching the presentation of {entity} on {tv}",
+      "generic_template": "I'm watching {emission} on {tv}",
+      "default_topic": "",
+      "copied": "Link copied",
+      "copy_prompt": "Copy this content to share the broadcast:"
+    },
+    "intermission": {
+      "brand_line": "TV App",
+      "continue_message": "We will continue shortly"
+    },
+    "continuity": {
+      "countdown_prefix": "IN"
+    },
+    "errors": {
+      "feed_schema": "The TV endpoint is not publishing a compatible schema.",
+      "no_channels": "There are no active channels.",
+      "feed_load": "The broadcast could not be loaded",
+      "player_missing": "The multi-provider player could not be loaded."
+    },
+    "controls": {
+      "group_aria_label": "Broadcast controls",
+      "info": "Info",
+      "share": "Share",
+      "fullscreen": "Fullscreen",
+      "exit_fullscreen": "Exit fullscreen",
+      "mute": "Mute",
+      "unmute": "Unmute"
+    }
+  },
+  "requests": {
+    "enabled": false,
+    "form_url": "",
+    "type_entry": "",
+    "url_entry": "",
+    "types": {
+      "proposal": "Propose a video",
+      "correction": "Report a problem or correction",
+      "removal": "Request video removal"
+    }
+  },
+  "entities": {
+    "enabled": false
+  },
+  "analytics": {
+    "enabled": false,
+    "script_url": "",
+    "global_object": "",
+    "track_method": "track"
+  },
+  "deployment": {
+    "cname": ""
+  }
+}

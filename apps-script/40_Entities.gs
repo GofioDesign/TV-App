@@ -1,5 +1,5 @@
 /*
- * ARCHIPIÉLAGO VIVO TV · ENTIDADES
+ * TV App · ENTIDADES
  *
  * _tv_entities y _tv_entity_media son locales a TV.
  * La sincronización consume una fuente JSON PÚBLICA del Mapa.

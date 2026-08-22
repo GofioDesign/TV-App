@@ -1,0 +1,189 @@
+{
+  "schema_version": 2,
+  "instance_id": "my-tv",
+  "name": "My TV",
+  "short_name": "TV",
+  "language": "en",
+  "locale": "en_US",
+  "timezone": "UTC",
+  "site_url": "https://tv.example.org/",
+  "default_channel": "general",
+  "data": {
+    "feed_url": "https://data.example.org/tv/feed.json"
+  },
+  "providers": [
+    "youtube",
+    "vimeo",
+    "peertube",
+    "direct"
+  ],
+  "branding": {
+    "logo": "assets/my-tv.svg",
+    "logo_alt": "My TV",
+    "social_image": "assets/social-1200x630.png",
+    "favicon": "assets/favicon.ico",
+    "theme_color": "#000000",
+    "color_scheme": "dark",
+    "theme": "default",
+    "icons": [
+      {
+        "src": "assets/icon-192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "assets/icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  },
+  "seo": {
+    "title": "My TV | Online television",
+    "description": "A configurable online television powered by TV App.",
+    "robots": "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1",
+    "canonical_url": "https://tv.example.org/",
+    "og_type": "website",
+    "og_site_name": "My TV",
+    "twitter_card": "summary_large_image",
+    "twitter_site": "",
+    "twitter_creator": ""
+  },
+  "publisher": {
+    "name": "Example Organization",
+    "url": "https://example.org/",
+    "email": "hello@example.org"
+  },
+  "navigation": {
+    "enabled": true,
+    "aria_label": "Main navigation",
+    "brand_url": "https://example.org/",
+    "items": [
+      {
+        "label": "Home",
+        "url": "https://example.org/"
+      },
+      {
+        "label": "TV",
+        "url": "https://tv.example.org/",
+        "current": true
+      },
+      {
+        "label": "Contact",
+        "url": "https://example.org/contact"
+      }
+    ]
+  },
+  "ui": {
+    "channel_label": "CHANNEL",
+    "loading_channel": "Loading…",
+    "programming_placeholder": "Programming",
+    "current_program": "Programming",
+    "player_aria_label": "Live television broadcast",
+    "loading_schedule": "Loading schedule…",
+    "standby_message": "Programming in preparation",
+    "standby_program": "Programming",
+    "continuity_aria_label": "Upcoming programme changes",
+    "entity_map_label": "View profile",
+    "entity_qr_alt": "QR code for entity profile",
+    "entity_fallback_name": "View profile",
+    "video_label": "Video",
+    "media_original_aria_template": "{title} · open original video",
+    "info_panel_aria_label": "Broadcast information",
+    "info_kicker": "NOW ON AIR",
+    "info_title": "Broadcast information",
+    "info_close": "Close information",
+    "labels": {
+      "channel": "Channel",
+      "program": "Programme",
+      "now": "Now",
+      "entity": "Entity",
+      "territory": "Territory"
+    },
+    "participation": {
+      "enabled": true,
+      "label": "Participate",
+      "aria_label": "Participate in this TV",
+      "description": "Programming is collaborative. You can propose content or report an issue with this broadcast.",
+      "proposal": "Propose a video",
+      "correction": "Report an error or correction",
+      "removal": "Request removal of this video"
+    },
+    "share": {
+      "entity_template": "I'm watching the presentation of {entity} on {tv}",
+      "generic_template": "I'm watching {emission} on {tv}",
+      "default_topic": "",
+      "copied": "Link copied",
+      "copy_prompt": "Copy this content to share the broadcast:"
+    },
+    "intermission": {
+      "brand_line": "My TV",
+      "continue_message": "We will continue shortly"
+    },
+    "continuity": {
+      "countdown_prefix": "IN"
+    },
+    "errors": {
+      "feed_schema": "The TV endpoint is not publishing a compatible schema.",
+      "no_channels": "There are no active channels.",
+      "feed_load": "The broadcast could not be loaded",
+      "player_missing": "The multi-provider player could not be loaded."
+    },
+    "controls": {
+      "group_aria_label": "Broadcast controls",
+      "info": "Info",
+      "share": "Share",
+      "fullscreen": "Fullscreen",
+      "exit_fullscreen": "Exit fullscreen",
+      "mute": "Mute",
+      "unmute": "Unmute"
+    }
+  },
+  "requests": {
+    "enabled": false,
+    "form_url": "",
+    "type_entry": "",
+    "url_entry": "",
+    "types": {
+      "proposal": "Propose a video",
+      "correction": "Report a problem or correction",
+      "removal": "Request video removal"
+    }
+  },
+  "entities": {
+    "enabled": false
+  },
+  "analytics": {
+    "enabled": false,
+    "script_url": "",
+    "global_object": "",
+    "track_method": "track"
+  },
+  "deployment": {
+    "cname": "tv.example.org"
+  },
+  "backend": {
+    "menu_name": "My TV",
+    "database_name": "My TV — DB",
+    "public_feed_target": "https://data.example.org/tv/feed.json",
+    "default_channel_id": "general",
+    "entity_program_id": "entities",
+    "default_status": "Active",
+    "request_pending_status": "Pending",
+    "media_status_active": "Active",
+    "media_status_inactive": "Inactive",
+    "media_status_retired": "Retired",
+    "media_status_pending_review": "Pending review",
+    "orphaned_relation_reason": "orphaned_entity_relation",
+    "entity_relation_type": "entity_profile",
+    "entity_media_source": "entity-sync",
+    "entity_media_sources": [
+      "entity-sync"
+    ],
+    "external_rights_allowed": [
+      "embed_only",
+      "authorized"
+    ],
+    "new_entity_hours": 72
+  }
+}

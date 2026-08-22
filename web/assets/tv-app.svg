@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 180" role="img" aria-labelledby="title desc">
+  <title id="title">TV App</title>
+  <desc id="desc">Generic TV App logo</desc>
+  <rect width="640" height="180" rx="24" fill="#000"/>
+  <rect x="28" y="28" width="124" height="124" rx="18" fill="none" stroke="#fff" stroke-width="10"/>
+  <path d="M78 64l48 26-48 26z" fill="#fff"/>
+  <text x="184" y="112" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700">TV App</text>
+</svg>

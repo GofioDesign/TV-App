@@ -1,4 +1,4 @@
-/** ARCHIPIÉLAGO VIVO TV · CANALES, PROGRAMAS Y PARRILLA */
+/** TV App · CANALES, PROGRAMAS Y PARRILLA */
 
 function readTvChannels_() {
   const sheet = getTvSheet_(TV.SHEETS.CHANNELS);

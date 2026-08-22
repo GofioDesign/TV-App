@@ -1,4 +1,4 @@
-/** ARCHIPIÉLAGO VIVO TV · VALIDACIÓN */
+/** TV App · VALIDACIÓN */
 
 function validateTvProject() {
   const errors = [];

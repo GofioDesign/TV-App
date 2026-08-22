@@ -1,20 +1,18 @@
 /**
- * ARCHIPIÉLAGO VIVO TV · CONFIGURACIÓN
+ * TV App · BACKEND CONFIGURATION AND SCHEMA
  *
- * Proyecto independiente vinculado exclusivamente a
- * "Archipiélago Vivo TV — DB".
- *
- * IMPORTANTE:
- * - No contiene el ID de la BD del Mapa.
- * - No abre ni consulta directamente la hoja del Mapa.
- * - La integración opcional con entidades se hace por una URL pública JSON
- *   guardada en Script Properties (TV_ENTITIES_SOURCE_URL).
+ * Instance-specific values come from TV_INSTANCE, generated from the
+ * selected app.config.json. This file contains the stable TV App schema
+ * and engine-level defaults only.
  */
 
 const TV = Object.freeze({
-  NAME: 'Archipiélago Vivo TV',
+  NAME: TV_INSTANCE.NAME,
+  MENU_NAME: TV_INSTANCE.MENU_NAME,
+  DATABASE_NAME: TV_INSTANCE.DATABASE_NAME,
   SCHEMA_VERSION: 2,
-  TIMEZONE: 'Atlantic/Canary',
+  TIMEZONE: TV_INSTANCE.TIMEZONE,
+  PUBLIC_FEED_TARGET: TV_INSTANCE.PUBLIC_FEED_TARGET,
 
   SHEETS: Object.freeze({
     FORM_RESPONSES: 'Form_Responses',
@@ -32,30 +30,27 @@ const TV = Object.freeze({
     ENTITIES_SOURCE_URL: 'TV_ENTITIES_SOURCE_URL'
   }),
 
-  DEFAULT_CHANNEL_ID: 'general',
-  ENTITY_PROGRAM_ID: 'archipielago-vivo',
-  DEFAULT_STATUS: 'Activo',
-  REQUEST_PENDING_STATUS: 'Pendiente',
+  DEFAULT_CHANNEL_ID: TV_INSTANCE.DEFAULT_CHANNEL_ID,
+  ENTITY_PROGRAM_ID: TV_INSTANCE.ENTITY_PROGRAM_ID,
+  DEFAULT_STATUS: TV_INSTANCE.DEFAULT_STATUS,
+  REQUEST_PENDING_STATUS: TV_INSTANCE.REQUEST_PENDING_STATUS,
 
-  MEDIA_STATUS_ACTIVE: 'Activo',
-  MEDIA_STATUS_INACTIVE: 'Inactivo',
-  MEDIA_STATUS_RETIRED: 'Retirado',
-  MEDIA_STATUS_PENDING_REVIEW: 'Pending review',
-  REVIEW_REASON_ORPHANED_MAP_RELATION: 'orphaned_map_relation',
-  MAP_RELATION_TYPE: 'map_profile',
-  MAP_MEDIA_SOURCE: 'map-sync',
-  MAP_MEDIA_SOURCES: Object.freeze(['map-sync', 'entity-sync', 'map']),
+  MEDIA_STATUS_ACTIVE: TV_INSTANCE.MEDIA_STATUS_ACTIVE,
+  MEDIA_STATUS_INACTIVE: TV_INSTANCE.MEDIA_STATUS_INACTIVE,
+  MEDIA_STATUS_RETIRED: TV_INSTANCE.MEDIA_STATUS_RETIRED,
+  MEDIA_STATUS_PENDING_REVIEW: TV_INSTANCE.MEDIA_STATUS_PENDING_REVIEW,
 
-  // El frontend actual sigue reproduciendo mediante YouTube IFrame API.
-  // Vimeo/PeerTube/direct se exportan, pero no se programan hasta que
-  // el frontend incorpore adaptadores de reproducción para esos proveedores.
-  FRONTEND_SUPPORTED_PROVIDERS: Object.freeze(['youtube']),
+  // Legacy constant names are kept temporarily for compatibility with the
+  // imported entity-sync module. Their values are instance-configurable.
+  REVIEW_REASON_ORPHANED_MAP_RELATION: TV_INSTANCE.ORPHANED_RELATION_REASON,
+  MAP_RELATION_TYPE: TV_INSTANCE.ENTITY_RELATION_TYPE,
+  MAP_MEDIA_SOURCE: TV_INSTANCE.ENTITY_MEDIA_SOURCE,
+  MAP_MEDIA_SOURCES: TV_INSTANCE.ENTITY_MEDIA_SOURCES,
 
+  FRONTEND_SUPPORTED_PROVIDERS: TV_INSTANCE.FRONTEND_SUPPORTED_PROVIDERS,
   PROVIDERS: Object.freeze(['youtube', 'vimeo', 'peertube', 'direct']),
-
-  EXTERNAL_RIGHTS_ALLOWED: Object.freeze(['embed_only', 'authorized']),
-
-  NEW_ENTITY_HOURS: 72,
+  EXTERNAL_RIGHTS_ALLOWED: TV_INSTANCE.EXTERNAL_RIGHTS_ALLOWED,
+  NEW_ENTITY_HOURS: TV_INSTANCE.NEW_ENTITY_HOURS,
 
   ROTATION_TIERS: Object.freeze([
     Object.freeze({ max_minutes: 10, full_cycle_hours: 2 }),
@@ -232,8 +227,8 @@ const TV = Object.freeze({
     'status'
   ]),
 
-  // Únicas columnas de _tv_media que un adaptador técnico puede modificar.
-  // Los campos curatoriales quedan fuera deliberadamente.
+  // Only these _tv_media fields may be modified by technical provider
+  // adapters. Editorial fields remain deliberately outside this list.
   MEDIA_TECHNICAL_PATCH_FIELDS: Object.freeze([
     'provider',
     'provider_id',

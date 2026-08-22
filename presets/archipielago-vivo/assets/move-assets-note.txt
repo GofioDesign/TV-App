@@ -1,0 +1,1 @@
+Instance branding assets are stored in this directory and copied into deployable builds by scripts/build-instance.js.

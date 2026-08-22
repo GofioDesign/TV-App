@@ -873,5 +873,5 @@
     module.exports = api;
   }
 
-  if (typeof window !== "undefined") window.AVTVEngine = api;
+  if (typeof window !== "undefined") window.TVAppEngine = api;
 })();

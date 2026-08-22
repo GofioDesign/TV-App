@@ -1,4 +1,4 @@
-/** ARCHIPIÉLAGO VIVO TV · CATÁLOGO MULTIPROVEEDOR */
+/** TV App · CATÁLOGO MULTIPROVEEDOR */
 
 function normalizeTvMediaProviders() {
   const sheet = getTvSheet_(TV.SHEETS.MEDIA);
@@ -46,7 +46,7 @@ function normalizeTvMediaProviders() {
 function refreshTvMediaMetadata() {
   const result = refreshTvMediaMetadataInternal_({ silent: false });
   SpreadsheetApp.getUi().alert(
-    'Metadatos actualizados.\n\n' +
+    'Metadatos marcados actualizados.\n\n' +
     'YouTube: ' + JSON.stringify(result.youtube) + '\n' +
     'Vimeo: ' + JSON.stringify(result.vimeo) + '\n' +
     'PeerTube: ' + JSON.stringify(result.peertube) + '\n' +
@@ -171,7 +171,9 @@ function upsertTvMediaIdentity_(identity, defaults) {
     review_reason: '',
     review_requested_at: '',
     reviewed_at: '',
-    reviewed_by: ''
+    reviewed_by: '',
+    refresh_metadata: true,
+    metadata_refresh_error: ''
   };
   return { action: 'created', media_id: mediaId, rowNumber: tvAppendObject_(sheet, record) };
 }
@@ -204,25 +206,49 @@ function parseDirectIdentity_(providerId, candidates) {
 function refreshTvMediaDirectMetadataInternal_() {
   const sheet = getTvSheet_(TV.SHEETS.MEDIA);
   tvAssertHeaders_(sheet, TV.MEDIA_HEADERS);
-  const records = tvReadObjects_(sheet).filter(function(r) {
-    return tvNormalizeProvider_(r.provider) === 'direct';
+  const records = tvReadObjects_(sheet).filter(function(record) {
+    return (
+      tvNormalizeProvider_(record.provider) === 'direct' &&
+      tvBoolean_(record.refresh_metadata, false)
+    );
   });
 
   let updated = 0;
+  let unavailable = 0;
+  const errors = [];
+
   records.forEach(function(record) {
     const parsed = parseTvMediaIdentity_(record);
-    if (!parsed) return;
+    if (!parsed) {
+      const message = 'No se pudo resolver la identidad de vídeo directo.';
+      tvPatchMediaTechnical_(record._rowNumber, {
+        refresh_metadata: true,
+        metadata_refresh_error: message
+      });
+      errors.push(String(record.media_id || 'fila ' + record._rowNumber) + ': ' + message);
+      unavailable++;
+      return;
+    }
+
     tvPatchMediaTechnical_(record._rowNumber, {
       provider: parsed.provider,
       provider_id: parsed.provider_id,
       provider_url: parsed.provider_url,
       embed_url: parsed.embed_url,
       embeddable: true,
-      metadata_updated_at: new Date()
+      metadata_updated_at: new Date(),
+      refresh_metadata: false,
+      metadata_refresh_error: ''
     });
     updated++;
   });
-  return { total: records.length, updated: updated };
+
+  return {
+    total: records.length,
+    updated: updated,
+    unavailable: unavailable,
+    errors: errors
+  };
 }
 
 function tvIsMapDerivedMedia_(record) {

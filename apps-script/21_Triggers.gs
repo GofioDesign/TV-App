@@ -1,4 +1,4 @@
-/** ARCHIPIÉLAGO VIVO TV · ACTIVADORES */
+/** TV App · ACTIVADORES */
 
 function installTvTriggers() {
   uninstallTvTriggers_();

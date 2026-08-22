@@ -1,0 +1,208 @@
+{
+  "schema_version": 2,
+  "instance_id": "archipielago-vivo",
+  "name": "Archipiélago Vivo TV",
+  "short_name": "AV TV",
+  "language": "es",
+  "locale": "es_ES",
+  "timezone": "Atlantic/Canary",
+  "site_url": "https://tv.archipielagovivo.org/",
+  "default_channel": "general",
+  "data": {
+    "feed_url": "https://data.archipielagovivo.org/tv/feed.json"
+  },
+  "providers": [
+    "youtube",
+    "vimeo",
+    "peertube",
+    "direct"
+  ],
+  "backend": {
+    "menu_name": "Archipiélago Vivo TV",
+    "database_name": "Archipiélago Vivo TV — DB",
+    "public_feed_target": "https://data.archipielagovivo.org/tv/feed.json",
+    "default_channel_id": "general",
+    "entity_program_id": "archipielago-vivo",
+    "default_status": "Activo",
+    "request_pending_status": "Pendiente",
+    "media_status_active": "Activo",
+    "media_status_inactive": "Inactivo",
+    "media_status_retired": "Retirado",
+    "media_status_pending_review": "Pending review",
+    "orphaned_relation_reason": "orphaned_map_relation",
+    "entity_relation_type": "map_profile",
+    "entity_media_source": "map-sync",
+    "entity_media_sources": [
+      "map-sync",
+      "entity-sync",
+      "map"
+    ],
+    "external_rights_allowed": [
+      "embed_only",
+      "authorized"
+    ],
+    "new_entity_hours": 72
+  },
+  "branding": {
+    "logo": "assets/logo.svg",
+    "logo_alt": "Archipiélago Vivo TV",
+    "social_image": "assets/logo-social-1200x630.png",
+    "favicon": "assets/favicon.ico",
+    "theme_color": "#000000",
+    "color_scheme": "dark",
+    "theme": "default",
+    "icons": [
+      {
+        "src": "assets/android-chrome-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "assets/android-chrome-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  },
+  "seo": {
+    "title": "Archipiélago Vivo TV | Televisión colaborativa de Canarias",
+    "description": "Archipiélago Vivo TV es una televisión online colaborativa de Canarias con contenidos sobre territorio, memoria, cultura, cuidados, investigación y alternativas.",
+    "robots": "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1",
+    "canonical_url": "https://tv.archipielagovivo.org/",
+    "og_type": "website",
+    "og_site_name": "Archipiélago Vivo",
+    "twitter_card": "summary_large_image",
+    "twitter_site": "@ArchplgVivo",
+    "twitter_creator": "@ArchplgVivo"
+  },
+  "publisher": {
+    "name": "Archipiélago Vivo",
+    "url": "https://archipielagovivo.org/",
+    "email": "archipielagovivo@riseup.net"
+  },
+  "navigation": {
+    "enabled": true,
+    "aria_label": "Archipiélago Vivo",
+    "brand_url": "https://archipielagovivo.org/",
+    "items": [
+      {
+        "label": "Qué es",
+        "url": "https://archipielagovivo.org/#que-es"
+      },
+      {
+        "label": "Mapa",
+        "url": "https://archipielagovivo.org/mapa.html"
+      },
+      {
+        "label": "Agenda",
+        "url": "https://archipielagovivo.org/agenda.html"
+      },
+      {
+        "label": "Inscripción",
+        "url": "https://inscripcion.archipielagovivo.org/"
+      },
+      {
+        "label": "TV",
+        "url": "https://tv.archipielagovivo.org/",
+        "current": true
+      },
+      {
+        "label": "Comunidad",
+        "url": "https://chat.whatsapp.com/HhhMOfygVpe51BZMyk6mzS",
+        "target": "_blank"
+      },
+      {
+        "label": "Contacto",
+        "url": "https://archipielagovivo.org/#contacto"
+      }
+    ]
+  },
+  "ui": {
+    "channel_label": "CANAL",
+    "loading_channel": "Cargando…",
+    "programming_placeholder": "Programación",
+    "current_program": "Programación",
+    "player_aria_label": "Emisión de Archipiélago Vivo TV",
+    "loading_schedule": "Cargando parrilla…",
+    "standby_message": "Programación en preparación",
+    "standby_program": "Programación",
+    "continuity_aria_label": "Próximos cambios de programa",
+    "entity_map_label": "Ver ficha en el mapa",
+    "entity_qr_alt": "Código QR de la ficha en el mapa",
+    "entity_fallback_name": "Ver ficha",
+    "video_label": "Vídeo",
+    "media_original_aria_template": "{title} · abrir vídeo original",
+    "info_panel_aria_label": "Información de la emisión",
+    "info_kicker": "AHORA EN ARCHIPIÉLAGO VIVO TV",
+    "info_title": "Información de la emisión",
+    "info_close": "Cerrar información",
+    "labels": {
+      "channel": "Canal",
+      "program": "Programa",
+      "now": "Ahora",
+      "entity": "Entidad",
+      "territory": "Territorio"
+    },
+    "participation": {
+      "enabled": true,
+      "label": "Participa",
+      "aria_label": "Participa en Archipiélago Vivo TV",
+      "description": "La programación es colaborativa. Puedes proponer contenidos o avisarnos si esta emisión necesita revisión.",
+      "proposal": "Proponer un vídeo",
+      "correction": "Comunicar un error o corrección",
+      "removal": "Solicitar la retirada de este vídeo"
+    },
+    "share": {
+      "entity_template": "Estoy viendo la presentación de {entity} en {tv}",
+      "generic_template": "Estoy viendo {emission} sobre {topic} en {tv}",
+      "default_topic": "Canarias",
+      "copied": "Enlace copiado",
+      "copy_prompt": "Copia este contenido para compartir la emisión:"
+    },
+    "intermission": {
+      "brand_line": "ARCHIPIÉLAGO VIVO TV",
+      "continue_message": "Continuamos en breves instantes"
+    },
+    "continuity": {
+      "countdown_prefix": "EN"
+    },
+    "errors": {
+      "feed_schema": "El endpoint TV todavía no está publicando schema_version 2.",
+      "no_channels": "No hay canales activos.",
+      "feed_load": "No se pudo cargar la emisión",
+      "player_missing": "No se ha cargado el reproductor multiproveedor."
+    },
+    "controls": {
+      "group_aria_label": "Controles de la emisión",
+      "info": "Info",
+      "share": "Compartir",
+      "fullscreen": "Pantalla completa",
+      "exit_fullscreen": "Salir de pantalla completa",
+      "mute": "Silenciar",
+      "unmute": "Activar sonido"
+    }
+  },
+  "requests": {
+    "enabled": true,
+    "form_url": "https://docs.google.com/forms/d/e/1FAIpQLSdhaM7hTEJRaSY8MOtgpu24R4NJwMrFi-qIL0IvR7esBiimVQ/viewform",
+    "type_entry": "entry.1784490314",
+    "url_entry": "entry.654634758",
+    "types": {
+      "proposal": "Proponer un vídeo para Archipiélago Vivo TV",
+      "correction": "Comunicar un problema o corrección sobre un vídeo",
+      "removal": "Solicitar la retirada de un vídeo"
+    }
+  },
+  "entities": {
+    "enabled": true
+  },
+  "analytics": {
+    "enabled": true,
+    "script_url": "https://archipielagovivo.org/analytics.js",
+    "global_object": "AVAnalytics",
+    "track_method": "track"
+  },
+  "deployment": {
+    "cname": "tv.archipielagovivo.org"
+  }
+}

@@ -1,8 +1,8 @@
-/** ARCHIPIÉLAGO VIVO TV · MENÚ */
+/** TV App · MENU */
 
 function onOpen() {
   SpreadsheetApp.getUi()
-    .createMenu('Archipiélago Vivo TV')
+    .createMenu(TV.MENU_NAME || TV.NAME || 'TV App')
     .addItem('Configurar / validar proyecto', 'setupTvProject')
     .addItem('Instalar / actualizar activadores', 'installTvTriggers')
     .addSeparator()
@@ -15,8 +15,7 @@ function onOpen() {
     .addItem('Entidades · Configurar URL de origen', 'promptTvEntitiesSourceUrl')
     .addSeparator()
     .addItem('Media · Normalizar identidades y URLs', 'normalizeTvMediaProviders')
-    .addItem('Media · Actualizar metadatos', 'refreshTvMediaMetadata')
-    .addItem('Media · Actualizar solo YouTube', 'refreshTvMediaYouTubeMetadata')
+    .addItem('Media · Actualizar metadatos marcados', 'refreshTvMediaMetadata')
     .addItem('Media · Diagnosticar YouTube no embebible', 'diagnoseTvYouTubeEmbeddability')
     .addSeparator()
     .addItem('Validar estructura y referencias', 'showTvValidation')

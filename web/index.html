@@ -1,177 +1,103 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="tv-app-config" content="config.json">
 
-  <title>Archipiélago Vivo TV | Televisión colaborativa de Canarias</title>
-  <meta name="description" content="Archipiélago Vivo TV es una televisión online colaborativa de Canarias con contenidos sobre territorio, memoria, cultura, cuidados, investigación y alternativas.">
-  <meta name="application-name" content="Archipiélago Vivo TV">
+  <title>TV App</title>
+  <meta name="description" content="Configurable web television engine.">
+  <meta name="application-name" content="TV App">
   <meta name="theme-color" content="#000000">
   <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex,nofollow">
 
-  <link rel="canonical" href="https://tv.archipielagovivo.org/">
-  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <link rel="canonical">
+  <link id="tvFavicon" rel="icon" href="assets/tv-app.svg" sizes="any">
 
   <meta property="og:type" content="website">
-  <meta property="og:locale" content="es_ES">
-  <meta property="og:site_name" content="Archipiélago Vivo">
-  <meta property="og:title" content="Archipiélago Vivo TV">
-  <meta property="og:description" content="Archipiélago Vivo TV es una televisión online colaborativa de Canarias con contenidos sobre territorio, memoria, cultura, cuidados, investigación y alternativas.">
-  <meta property="og:url" content="https://tv.archipielagovivo.org/">
-  <meta property="og:image" content="https://tv.archipielagovivo.org/logo-social-1200x630.png">
-  <meta property="og:image:secure_url" content="https://tv.archipielagovivo.org/logo-social-1200x630.png">
-  <meta property="og:image:type" content="image/png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Archipiélago Vivo TV">
+  <meta property="og:site_name" content="TV App">
+  <meta property="og:title" content="TV App">
+  <meta property="og:description" content="Configurable web television engine.">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:site" content="@ArchplgVivo">
-  <meta name="twitter:creator" content="@ArchplgVivo">
-  <meta name="twitter:title" content="Archipiélago Vivo TV">
-  <meta name="twitter:description" content="Archipiélago Vivo TV es una televisión online colaborativa de Canarias con contenidos sobre territorio, memoria, cultura, cuidados, investigación y alternativas.">
-  <meta name="twitter:image" content="https://tv.archipielagovivo.org/logo-social-1200x630.png">
-  <meta name="twitter:image:alt" content="Archipiélago Vivo TV">
+  <meta name="twitter:title" content="TV App">
+  <meta name="twitter:description" content="Configurable web television engine.">
 
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" href="/logo.svg" type="image/svg+xml">
-
-  <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": "https://archipielagovivo.org/#organization",
-      "name": "Archipiélago Vivo",
-      "url": "https://archipielagovivo.org/",
-      "email": "archipielagovivo@riseup.net"
-    },
-    {
-      "@type": "ImageObject",
-      "@id": "https://tv.archipielagovivo.org/#primaryimage",
-      "url": "https://tv.archipielagovivo.org/logo-social-1200x630.png",
-      "contentUrl": "https://tv.archipielagovivo.org/logo-social-1200x630.png",
-      "width": 1200,
-      "height": 630,
-      "caption": "Archipiélago Vivo TV"
-    },
-    {
-      "@type": "WebSite",
-      "@id": "https://tv.archipielagovivo.org/#website",
-      "url": "https://tv.archipielagovivo.org/",
-      "name": "Archipiélago Vivo TV",
-      "alternateName": "AV TV",
-      "description": "Archipiélago Vivo TV es una televisión online colaborativa de Canarias con contenidos sobre territorio, memoria, cultura, cuidados, investigación y alternativas.",
-      "inLanguage": "es",
-      "publisher": {
-        "@id": "https://archipielagovivo.org/#organization"
-      }
-    },
-    {
-      "@type": "WebPage",
-      "@id": "https://tv.archipielagovivo.org/#webpage",
-      "url": "https://tv.archipielagovivo.org/",
-      "name": "Archipiélago Vivo TV | Televisión colaborativa de Canarias",
-      "description": "Archipiélago Vivo TV es una televisión online colaborativa de Canarias con contenidos sobre territorio, memoria, cultura, cuidados, investigación y alternativas.",
-      "inLanguage": "es",
-      "isPartOf": {
-        "@id": "https://tv.archipielagovivo.org/#website"
-      },
-      "about": {
-        "@id": "https://archipielagovivo.org/#organization"
-      },
-      "primaryImageOfPage": {
-        "@id": "https://tv.archipielagovivo.org/#primaryimage"
-      }
-    }
-  ]
-}
-  </script>
-
-  <link rel="stylesheet" href="/styles.css">
-  <link rel="stylesheet" href="/tv-info.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="tv-info.css">
 </head>
 <body>
   <header class="site-header">
-    <a class="header-brand" href="https://archipielagovivo.org/" aria-label="Inicio de Archipiélago Vivo">
-      <img src="/logo.svg" alt="">
-      <span>Archipiélago Vivo TV</span>
+    <a class="header-brand" id="headerBrand" href="#" aria-label="TV App">
+      <img data-tv-logo src="assets/tv-app.svg" alt="TV App">
+      <span data-tv-name>TV App</span>
     </a>
 
-    <nav class="main-nav" aria-label="Archipiélago Vivo">
-      <a href="https://archipielagovivo.org/#que-es"><strong>Qué es</strong></a>
-      <a href="https://archipielagovivo.org/mapa.html"><strong>Mapa</strong></a>
-      <a href="https://archipielagovivo.org/agenda.html"><strong>Agenda</strong></a>
-      <a href="https://inscripcion.archipielagovivo.org/"><strong>Inscripción</strong></a>
-      <a href="https://tv.archipielagovivo.org/" aria-current="page"><strong>TV</strong></a>
-      <a href="https://chat.whatsapp.com/HhhMOfygVpe51BZMyk6mzS" target="_blank" rel="noopener noreferrer"><strong>Comunidad</strong></a>
-      <a href="https://archipielagovivo.org/#contacto"><strong>Contacto</strong></a>
-    </nav>
+    <nav class="main-nav" id="mainNav" aria-label="Main navigation" hidden></nav>
 
     <div class="channel-switcher" id="channelSwitcher">
       <button class="channel-button" id="channelButton" type="button" aria-haspopup="true" aria-expanded="false">
         <span class="channel-button-copy">
-          <span id="channelNumber">CANAL</span>
-          <strong id="channelName">Cargando…</strong>
+          <span id="channelNumber">CHANNEL</span>
+          <strong id="channelName">Loading…</strong>
         </span>
         <span class="channel-chevron" aria-hidden="true">▼</span>
       </button>
-      <span class="current-program" id="currentProgram">Programación</span>
+      <span class="current-program" id="currentProgram">Programming</span>
       <div class="channel-menu" id="channelMenu" role="menu"></div>
     </div>
   </header>
 
   <main id="stage">
-    <div id="player" aria-label="Emisión de Archipiélago Vivo TV"></div>
+    <div id="player" aria-label="Live television broadcast"></div>
 
     <div id="statusScreen">
       <div>
-        <img src="/logo.svg" alt="Archipiélago Vivo TV">
-        <h1 class="status-title">ARCHIPIÉLAGO VIVO TV</h1>
-        <div id="statusText">Cargando parrilla…</div>
+        <img data-tv-logo src="assets/tv-app.svg" alt="TV App">
+        <h1 class="status-title" data-tv-name>TV App</h1>
+        <div id="statusText">Loading schedule…</div>
       </div>
     </div>
 
     <div id="standby">
       <div>
-        <img src="/logo.svg" alt="">
-        <div class="standby-copy">Programación en preparación</div>
-        <strong id="standbyProgram">Archipiélago Vivo TV</strong>
+        <img data-tv-logo data-tv-logo-decorative src="assets/tv-app.svg" alt="">
+        <div class="standby-copy" id="standbyCopy">Programming in preparation</div>
+        <strong id="standbyProgram" data-tv-name>TV App</strong>
       </div>
     </div>
 
-    <aside class="continuity-column" id="continuityColumn" aria-label="Próximos cambios de programa"></aside>
+    <aside class="continuity-column" id="continuityColumn" aria-label="Upcoming programme changes"></aside>
 
     <aside class="entity-card" id="entityCard">
       <a class="entity-link" id="entityLink" href="#" target="_blank" rel="noopener noreferrer">
-        <img id="entityQr" alt="Código QR de la ficha en el mapa">
+        <img id="entityQr" alt="QR code for entity profile">
         <strong id="entityName"></strong>
-        <span>Ver ficha en el mapa</span>
+        <span id="entityMapLabel">View profile</span>
       </a>
     </aside>
 
-    <aside class="program-info-panel" id="infoPanel" aria-hidden="true" aria-label="Información de la emisión">
+    <aside class="program-info-panel" id="infoPanel" aria-hidden="true" aria-label="Broadcast information">
       <div class="program-info-head">
         <div>
-          <span class="program-info-kicker">AHORA EN ARCHIPIÉLAGO VIVO TV</span>
-          <strong>Información de la emisión</strong>
+          <span class="program-info-kicker" id="infoKicker">NOW ON AIR</span>
+          <strong id="infoTitle">Broadcast information</strong>
         </div>
-        <button class="program-info-close" id="infoCloseButton" type="button" aria-label="Cerrar información">×</button>
+        <button class="program-info-close" id="infoCloseButton" type="button" aria-label="Close information">×</button>
       </div>
 
       <div class="program-info-body">
         <div class="program-info-row" id="infoChannelRow">
-          <span class="info-label">Canal</span>
+          <span class="info-label" id="infoChannelLabel">Channel</span>
           <strong class="info-value"></strong>
         </div>
         <div class="program-info-row" id="infoProgramRow">
-          <span class="info-label">Programa</span>
+          <span class="info-label" id="infoProgramLabel">Programme</span>
           <strong class="info-value"></strong>
         </div>
         <div class="program-info-row" id="infoMediaRow">
-          <span class="info-label">Ahora</span>
+          <span class="info-label" id="infoNowLabel">Now</span>
           <a class="info-value info-media-link"
              id="infoMediaLink"
              target="_blank"
@@ -179,21 +105,21 @@
         </div>
         <p class="program-info-description" id="infoDescription" hidden></p>
         <div class="program-info-row" id="infoEntityRow" hidden>
-          <span class="info-label">Entidad</span>
+          <span class="info-label" id="infoEntityLabel">Entity</span>
           <strong class="info-value"></strong>
         </div>
         <div class="program-info-row" id="infoTerritoryRow" hidden>
-          <span class="info-label">Territorio</span>
+          <span class="info-label" id="infoTerritoryLabel">Territory</span>
           <strong class="info-value"></strong>
         </div>
         <a class="program-info-link" id="infoMapLink" href="#" target="_blank" rel="noopener noreferrer" hidden>
-          Ver ficha en el mapa
+          View profile
         </a>
 
-        <section class="program-info-participation" aria-label="Participa en Archipiélago Vivo TV">
+        <section class="program-info-participation" id="participationSection" aria-label="Participate in this TV">
           <div class="program-info-participation-copy">
-            <span class="info-label">Participa</span>
-            <p>La programación es colaborativa. Puedes proponer contenidos o avisarnos si esta emisión necesita revisión.</p>
+            <span class="info-label" id="participationLabel">Participate</span>
+            <p id="participationDescription">Programming is collaborative. You can propose content or report an issue with this broadcast.</p>
           </div>
           <div class="program-info-actions">
             <a class="program-info-action program-info-action-primary"
@@ -201,73 +127,73 @@
                href="#"
                target="_blank"
                rel="noopener noreferrer">
-              Proponer un vídeo
+              Propose a video
             </a>
             <a class="program-info-action"
                id="infoCorrectionLink"
                href="#"
                target="_blank"
                rel="noopener noreferrer">
-              Comunicar un error o corrección
+              Report an error or correction
             </a>
             <a class="program-info-action program-info-action-secondary"
                id="infoRemovalLink"
                href="#"
                target="_blank"
                rel="noopener noreferrer">
-              Solicitar la retirada de este vídeo
+              Request removal of this video
             </a>
           </div>
         </section>
       </div>
     </aside>
 
-    <div class="tv-controls" role="group" aria-label="Controles de la emisión">
+    <div class="tv-controls" id="tvControls" role="group" aria-label="Broadcast controls">
       <button class="tv-control" id="infoButton" type="button"
-              aria-label="Información de la emisión"
+              aria-label="Info"
               aria-haspopup="dialog"
               aria-expanded="false"
-              title="Información"
+              title="Info"
               disabled>
         <span class="tv-control-symbol" aria-hidden="true">ⓘ</span>
         <span class="tv-control-label">Info</span>
       </button>
 
       <button class="tv-control" id="shareButton" type="button"
-              aria-label="Compartir esta emisión"
-              title="Compartir">
+              aria-label="Share"
+              title="Share">
         <span class="tv-control-symbol" aria-hidden="true">↗</span>
-        <span class="tv-control-label">Compartir</span>
+        <span class="tv-control-label">Share</span>
       </button>
 
       <button class="tv-control" id="fullscreenButton" type="button"
-              aria-label="Pantalla completa"
-              title="Pantalla completa">
+              aria-label="Fullscreen"
+              title="Fullscreen">
         <span class="tv-control-symbol" id="fullscreenIcon" aria-hidden="true">⛶</span>
-        <span class="tv-control-label" id="fullscreenLabel">Pantalla completa</span>
+        <span class="tv-control-label" id="fullscreenLabel">Fullscreen</span>
       </button>
 
       <button class="tv-control" id="soundButton" type="button"
-              aria-label="Silenciar"
-              title="Silenciar">
+              aria-label="Mute"
+              title="Mute">
         <span class="tv-control-symbol" id="soundIcon" aria-hidden="true">🔊</span>
-        <span class="tv-control-label" id="soundLabel">Silenciar</span>
+        <span class="tv-control-label" id="soundLabel">Mute</span>
       </button>
     </div>
 
     <div id="debug"></div>
   </main>
 
-  <script src="https://archipielagovivo.org/analytics.js"></script>
-  <script src="/tv-engine.js"></script>
+  <script src="runtime-config.js"></script>
+  <script src="tv-engine.js"></script>
 
-  <!-- SDK de proveedores externos. El motor de parrilla sigue siendo único;
-       tv-player.js adapta cada proveedor al mismo ciclo play/pause/ended/error. -->
+  <!-- Provider SDKs. The schedule engine remains provider-independent;
+       tv-player.js adapts each player to the same playback lifecycle. -->
   <script src="https://player.vimeo.com/api/player.js"></script>
   <script src="https://unpkg.com/@peertube/embed-api/build/player.min.js"></script>
-  <script src="/tv-player.js"></script>
+  <script src="tv-player.js"></script>
 
-  <script src="/app.js"></script>
+  <script src="app.js"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>

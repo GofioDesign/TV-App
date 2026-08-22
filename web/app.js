@@ -1,15 +1,34 @@
 (() => {
   "use strict";
 
-  const TV_DATA_URL = "https://data.archipielagovivo.org/tv/feed.json";
-  const TV_REQUEST_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdhaM7hTEJRaSY8MOtgpu24R4NJwMrFi-qIL0IvR7esBiimVQ/viewform";
-  const TV_REQUEST_TYPE_ENTRY = "entry.1784490314";
-  const TV_REQUEST_URL_ENTRY = "entry.654634758";
-  const TV_REQUEST_TYPES = Object.freeze({
-    proposal: "Proponer un vídeo para Archipiélago Vivo TV",
-    correction: "Comunicar un problema o corrección sobre un vídeo",
-    removal: "Solicitar la retirada de un vídeo"
-  });
+  const DEFAULT_APP_CONFIG = Object.freeze({
+  schema_version: 1,
+  instance_id: "tv-app",
+  name: "TV App",
+  language: "en",
+  timezone: "UTC",
+  site_url: "",
+  default_channel: "",
+  data: Object.freeze({ feed_url: "" }),
+  requests: Object.freeze({
+    enabled: false,
+    form_url: "",
+    type_entry: "",
+    url_entry: "",
+    types: Object.freeze({
+      proposal: "Propose a video",
+      correction: "Report a problem or correction",
+      removal: "Request video removal"
+    })
+  })
+});
+
+  let appConfig = DEFAULT_APP_CONFIG;
+  let TV_DATA_URL = "";
+  let TV_REQUEST_FORM_URL = "";
+  let TV_REQUEST_TYPE_ENTRY = "";
+  let TV_REQUEST_URL_ENTRY = "";
+  let TV_REQUEST_TYPES = DEFAULT_APP_CONFIG.requests.types;
   const DATA_REFRESH_MS = 5 * 60 * 1000;
   const PLAYBACK_HEALTH_MS = 1000;
   const UI_TICK_MS = 250;
@@ -22,9 +41,8 @@
   const DEBUG_SCHEDULE_REPORT_MS = 300 * 1000;
   const DEBUG_SCHEDULE_LOOKAHEAD_SECONDS = 24 * 60 * 60;
 
-  // Archipiélago Vivo TV funciona como señal lineal:
-  // una pausa accidental o provocada por el usuario no debe dejar
-  // la instancia retrasada respecto a la emisión.
+  // TV App funciona como señal lineal: una pausa accidental o provocada
+  // por el usuario no debe dejar la instancia retrasada respecto a la emisión.
   const PAUSE_PLAY_RETRY_MS = 120;
   const PAUSE_FORCE_LIVE_MS = 1500;
 
@@ -95,20 +113,83 @@
     }
   }
 
+  function mergeAppConfig(base, override) {
+  const value = override && typeof override === "object" ? override : {};
+  return {
+    ...base,
+    ...value,
+    data: { ...(base.data || {}), ...(value.data || {}) },
+    requests: {
+      ...(base.requests || {}),
+      ...(value.requests || {}),
+      types: {
+        ...((base.requests && base.requests.types) || {}),
+        ...((value.requests && value.requests.types) || {})
+      }
+    },
+    entities: { ...(base.entities || {}), ...(value.entities || {}) },
+    analytics: { ...(base.analytics || {}), ...(value.analytics || {}) },
+    branding: { ...(base.branding || {}), ...(value.branding || {}) },
+    seo: { ...(base.seo || {}), ...(value.seo || {}) },
+    publisher: { ...(base.publisher || {}), ...(value.publisher || {}) },
+    navigation: { ...(base.navigation || {}), ...(value.navigation || {}) },
+    ui: {
+      ...(base.ui || {}),
+      ...(value.ui || {}),
+      labels: { ...((base.ui && base.ui.labels) || {}), ...((value.ui && value.ui.labels) || {}) },
+      participation: { ...((base.ui && base.ui.participation) || {}), ...((value.ui && value.ui.participation) || {}) },
+      share: { ...((base.ui && base.ui.share) || {}), ...((value.ui && value.ui.share) || {}) },
+      intermission: { ...((base.ui && base.ui.intermission) || {}), ...((value.ui && value.ui.intermission) || {}) },
+      continuity: { ...((base.ui && base.ui.continuity) || {}), ...((value.ui && value.ui.continuity) || {}) },
+      errors: { ...((base.ui && base.ui.errors) || {}), ...((value.ui && value.ui.errors) || {}) },
+      controls: { ...((base.ui && base.ui.controls) || {}), ...((value.ui && value.ui.controls) || {}) }
+    }
+  };
+}
+
+  async function loadAppConfig() {
+    try {
+      const loaded = window.TVAppConfig && window.TVAppConfig.ready ? await window.TVAppConfig.ready : await fetchJson("config.json");
+      appConfig = mergeAppConfig(DEFAULT_APP_CONFIG, loaded);
+    } catch (error) {
+      appConfig = DEFAULT_APP_CONFIG;
+      log("config", `Could not load config.json: ${error && error.message || error}`);
+    }
+
+    TV_DATA_URL = String(appConfig.data && appConfig.data.feed_url || "").trim();
+    TV_REQUEST_FORM_URL = String(appConfig.requests && appConfig.requests.form_url || "").trim();
+    TV_REQUEST_TYPE_ENTRY = String(appConfig.requests && appConfig.requests.type_entry || "").trim();
+    TV_REQUEST_URL_ENTRY = String(appConfig.requests && appConfig.requests.url_entry || "").trim();
+    TV_REQUEST_TYPES = Object.freeze({
+      ...DEFAULT_APP_CONFIG.requests.types,
+      ...((appConfig.requests && appConfig.requests.types) || {})
+    });
+
+    if (!TV_DATA_URL) {
+      throw new Error("config.json debe definir data.feed_url.");
+    }
+  }
+
+  function storageKey(name) {
+    const prefix = String(appConfig.instance_id || "tv-app").trim() || "tv-app";
+    return `${prefix}_${name}`;
+  }
+
   function resolveRequestedChannel() {
     const params = new URLSearchParams(location.search);
-    return params.get("channel") || localStorage.getItem("avtv_channel") || null;
+    return params.get("channel") || localStorage.getItem(storageKey("channel")) || appConfig.default_channel || null;
   }
 
   function updateUrlChannel(channel) {
     const url = new URL(location.href);
     url.searchParams.set("channel", channel.slug || channel.channel_id);
     history.replaceState({}, "", url);
-    localStorage.setItem("avtv_channel", channel.slug || channel.channel_id);
+    localStorage.setItem(storageKey("channel"), channel.slug || channel.channel_id);
   }
 
   function channelShareUrl(channel = selectedChannel) {
-    const url = new URL("https://tv.archipielagovivo.org/");
+    const baseUrl = String(appConfig.site_url || "").trim() || `${location.origin}/`;
+    const url = new URL(baseUrl);
     if (channel) {
       url.searchParams.set(
         "channel",
@@ -142,12 +223,12 @@
         entity.name,
         entity.title,
         media.title,
-        "una iniciativa de Archipiélago Vivo"
+        configValue("ui.entity_fallback_name", "View profile")
       );
 
       return {
         title: entityName,
-        text: `Estoy viendo la presentación de ${entityName} en Archipiélago Vivo TV`,
+        text: formatTemplate(configValue("ui.share.entity_template", "I am watching the presentation of {entity} on {tv}"), { entity: entityName, tv: appConfig.name || "TV App" }),
         url
       };
     }
@@ -156,18 +237,19 @@
       media && media.title,
       media && media.name,
       program && program.name,
-      "Archipiélago Vivo TV"
+      appConfig.name,
+      "TV App"
     );
 
     const topic = firstText(
       program && program.name,
       channel && channel.name,
-      "Canarias"
+      configValue("ui.share.default_topic")
     );
 
     return {
       title: emission,
-      text: `Estoy viendo ${emission} sobre ${topic} en Archipiélago Vivo TV`,
+      text: formatTemplate(configValue("ui.share.generic_template", "I am watching {emission} on {tv}"), { emission, topic, tv: appConfig.name || "TV App" }),
       url
     };
   }
@@ -175,11 +257,8 @@
   async function shareCurrentBroadcast() {
     const payload = currentSharePayload();
 
-    // Compartimos un único cuerpo de texto:
-    // mensaje editorial + URL de Archipiélago Vivo TV.
-    //
-    // No adjuntamos miniaturas ni enviamos una URL separada a Web Share.
-    // La preview social debe salir de los metadatos Open Graph del subdominio.
+    // Share one editorial text body plus the configured TV URL.
+    // Social previews come from the instance Open Graph metadata.
     const shareText = [
       payload.text,
       payload.url
@@ -194,7 +273,7 @@
     if (navigator.share) {
       try {
         await navigator.share({
-          title: payload.title || "Archipiélago Vivo TV",
+          title: payload.title || appConfig.name || "TV App",
           text: shareText
         });
         return;
@@ -219,14 +298,14 @@
       const button = $("shareButton");
       if (button) {
         const original = button.innerHTML;
-        button.textContent = "Enlace copiado";
+        button.textContent = configValue("ui.share.copied", "Link copied");
         setTimeout(() => {
           button.innerHTML = original;
         }, 1800);
       }
     } catch (_) {
       window.prompt(
-        "Copia este contenido para compartir la emisión:",
+        configValue("ui.share.copy_prompt", "Copy this content to share the broadcast:"),
         shareText
       );
     }
@@ -284,12 +363,16 @@
   }
 
   function trackTv(eventName, details = {}, includeTechnical = false) {
-    if (!window.AVAnalytics || typeof window.AVAnalytics.track !== "function") return false;
-    return window.AVAnalytics.track(
-      eventName,
-      includeTechnical ? { ...technicalContext(), ...details } : details
-    );
-  }
+      const analytics = appConfig.analytics || {};
+      if (analytics.enabled === false || !analytics.global_object) return false;
+      const tracker = window[analytics.global_object];
+      const method = analytics.track_method || "track";
+      if (!tracker || typeof tracker[method] !== "function") return false;
+      return tracker[method](
+        eventName,
+        includeTechnical ? { ...technicalContext(), ...details } : details
+      );
+    }
 
   function broadcastDetails(broadcast = currentBroadcast) {
     const channel = broadcast && broadcast.channel ? broadcast.channel : selectedChannel;
@@ -325,23 +408,44 @@
     return "";
   }
 
+  function configValue(path, fallback = "") {
+      const parts = String(path || "").split(".").filter(Boolean);
+      let value = appConfig;
+      for (const part of parts) {
+        if (!value || typeof value !== "object" || !(part in value)) return fallback;
+        value = value[part];
+      }
+      return value === undefined || value === null || value === "" ? fallback : value;
+    }
+
+    function formatTemplate(template, values) {
+      return String(template || "")
+        .replace(/\{([a-z0-9_]+)\}/gi, (_, key) => values && values[key] != null ? String(values[key]) : "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function configuredLogo() {
+      return firstText(configValue("branding.logo"), "assets/tv-app.svg");
+    }
+
   function mediaProvider(media) {
-    return window.AVTVPlayer
-      ? window.AVTVPlayer.normalizeProvider(media)
+    return window.TVAppPlayer
+      ? window.TVAppPlayer.normalizeProvider(media)
       : String(media && media.provider || "").trim().toLowerCase();
   }
 
   function mediaPlaybackKey(media) {
     if (!media) return "";
-    if (window.AVTVPlayer) return window.AVTVPlayer.mediaKey(media);
+    if (window.TVAppPlayer) return window.TVAppPlayer.mediaKey(media);
     return firstText(media.media_id, media.provider_id, media.youtube_id);
   }
 
   function mediaSupportedByPlayer(media) {
     return Boolean(
       media &&
-      window.AVTVPlayer &&
-      window.AVTVPlayer.isSupported(media)
+      window.TVAppPlayer &&
+      window.TVAppPlayer.isSupported(media)
     );
   }
 
@@ -357,8 +461,8 @@
     if (explicitUrl) return explicitUrl;
 
     const provider = mediaProvider(media);
-    const providerId = window.AVTVPlayer
-      ? window.AVTVPlayer.providerMediaId(media)
+    const providerId = window.TVAppPlayer
+      ? window.TVAppPlayer.providerMediaId(media)
       : firstText(media.provider_id, media.youtube_id);
 
     if (provider === "youtube" && providerId) {
@@ -378,22 +482,25 @@
   }
 
   function tvRequestUrl(requestType, mediaUrl = "") {
-    const url = new URL(TV_REQUEST_FORM_URL);
-    url.searchParams.set("usp", "pp_url");
-    url.searchParams.set(TV_REQUEST_TYPE_ENTRY, requestType);
+  if (!appConfig.requests || !appConfig.requests.enabled || !TV_REQUEST_FORM_URL) return "";
 
-    if (mediaUrl) {
-      url.searchParams.set(TV_REQUEST_URL_ENTRY, mediaUrl);
-    }
+  const url = new URL(TV_REQUEST_FORM_URL);
+  url.searchParams.set("usp", "pp_url");
+  if (TV_REQUEST_TYPE_ENTRY) url.searchParams.set(TV_REQUEST_TYPE_ENTRY, requestType);
 
-    return url.toString();
+  if (mediaUrl && TV_REQUEST_URL_ENTRY) {
+    url.searchParams.set(TV_REQUEST_URL_ENTRY, mediaUrl);
   }
+
+  return url.toString();
+}
 
   function setTvRequestLink(id, requestType, mediaUrl = "", requiresMedia = false) {
     const link = $(id);
     if (!link) return;
 
-    const enabled = !requiresMedia || Boolean(mediaUrl);
+    const requestUrl = tvRequestUrl(requestType, mediaUrl);
+    const enabled = Boolean(requestUrl) && (!requiresMedia || Boolean(mediaUrl));
     link.hidden = !enabled;
 
     if (!enabled) {
@@ -401,7 +508,7 @@
       return;
     }
 
-    link.href = tvRequestUrl(requestType, mediaUrl);
+    link.href = requestUrl;
   }
 
   function currentEntity(broadcast = currentBroadcast) {
@@ -450,20 +557,20 @@
 
     const channelText = channel
       ? [
-          channel.channel_number ? `CANAL ${channel.channel_number}` : "",
+          channel.channel_number ? `${configValue("ui.channel_label", "CHANNEL")} ${channel.channel_number}` : "",
           channel.name || channel.channel_id || ""
         ].filter(Boolean).join(" · ")
       : "";
 
     setInfoRow(
       "infoChannelRow",
-      "Canal",
+      configValue("ui.labels.channel", "Channel"),
       channelText
     );
 
     setInfoRow(
       "infoProgramRow",
-      "Programa",
+      configValue("ui.labels.program", "Programme"),
       program && firstText(
         program.name,
         program.title,
@@ -473,7 +580,7 @@
 
     setInfoRow(
       "infoMediaRow",
-      "Ahora",
+      configValue("ui.labels.now", "Now"),
       media && firstText(
         media.title,
         media.name
@@ -506,7 +613,7 @@
         mediaLink.rel = "noopener noreferrer";
         mediaLink.setAttribute(
           "aria-label",
-          `${firstText(media && media.title, media && media.name, "Vídeo")} · abrir vídeo original`
+          formatTemplate(configValue("ui.media_original_aria_template", "{title} · open original video"), { title: firstText(media && media.title, media && media.name, configValue("ui.video_label", "Video")) })
         );
       } else {
         // Nunca dejamos href="#": si no hay una URL original real, no hay enlace.
@@ -554,7 +661,7 @@
 
     setInfoRow(
       "infoEntityRow",
-      "Entidad",
+      configValue("ui.labels.entity", "Entity"),
       entityName
     );
 
@@ -573,7 +680,7 @@
 
     setInfoRow(
       "infoTerritoryRow",
-      "Territorio",
+      configValue("ui.labels.territory", "Territory"),
       territory
     );
 
@@ -649,7 +756,7 @@
         const broadcast = engine.resolve(channel.channel_id, now);
         const media = broadcast && broadcast.media;
         const program = broadcast && broadcast.program;
-        const thumb = media && media.thumbnail ? media.thumbnail : "logo.svg";
+        const thumb = media && media.thumbnail ? media.thumbnail : configuredLogo();
         const button = document.createElement("button");
         button.type = "button";
         button.className = "channel-option";
@@ -662,8 +769,8 @@
           </span>
           <span class="channel-option-copy">
             <strong>${escapeText(channel.name)}</strong>
-            <span class="channel-option-program">${escapeText(program && program.name ? program.name : "Programación")}</span>
-            <span class="channel-option-title">${escapeText(media && media.title ? media.title : "Programación en preparación")}</span>
+            <span class="channel-option-program">${escapeText(program && program.name ? program.name : configValue("ui.programming_placeholder", "Programming"))}</span>
+            <span class="channel-option-title">${escapeText(media && media.title ? media.title : configValue("ui.standby_message", "Programming in preparation"))}</span>
           </span>`;
         button.addEventListener("click", () => {
           selectChannel(channel.channel_id);
@@ -677,10 +784,11 @@
     const channel = broadcast && broadcast.channel;
     const program = broadcast && broadcast.program;
     if (channel) {
-      $("channelNumber").textContent = channel.channel_number ? `CANAL ${channel.channel_number}` : "CANAL";
+      const channelLabel = configValue("ui.channel_label", "CHANNEL");
+      $("channelNumber").textContent = channel.channel_number ? `${channelLabel} ${channel.channel_number}` : channelLabel;
       $("channelName").textContent = channel.name || channel.channel_id;
     }
-    $("currentProgram").textContent = program && program.name ? program.name : "Programación";
+    $("currentProgram").textContent = program && program.name ? program.name : configValue("ui.programming_placeholder", "Programming");
   }
 
   function cancelIntermission() {
@@ -750,13 +858,13 @@
       image.style.maxHeight = "";
       image.style.marginBottom = "";
     }
-    if (copy) copy.textContent = "Programación en preparación";
+    if (copy) copy.textContent = configValue("ui.standby_message", "Programming in preparation");
   }
 
   function showStandby(broadcast) {
     resetStandbyPresentation();
     const programName = broadcast && broadcast.program && broadcast.program.name;
-    $("standbyProgram").textContent = programName || "Programación";
+    $("standbyProgram").textContent = programName || configValue("ui.standby_program", "Programming");
     $("standby").classList.add("visible");
   }
 
@@ -770,8 +878,8 @@
       image.style.maxHeight = "300px";
       image.style.marginBottom = "1.4rem";
     }
-    if (copy) copy.textContent = "ARCHIPIÉLAGO VIVO TV";
-    $("standbyProgram").textContent = "Continuamos en breves instantes";
+    if (copy) copy.textContent = configValue("ui.intermission.brand_line", appConfig.name || "TV App");
+    $("standbyProgram").textContent = configValue("ui.intermission.continue_message", "We will continue shortly");
     standby.classList.add("visible");
     $("entityCard").classList.remove("visible");
     clearContinuity();
@@ -802,7 +910,7 @@
     if (currentEntityCardId !== media.entity_id) {
       currentEntityCardId = media.entity_id;
       $("entityQr").src = qrImageUrl(entity.map_url);
-      $("entityName").textContent = entity.name || media.title || "Ver ficha";
+      $("entityName").textContent = entity.name || media.title || configValue("ui.entity_fallback_name", "View profile");
       $("entityLink").href = entity.map_url;
     }
     card.classList.add("visible");
@@ -840,7 +948,7 @@
         card.type = "button";
         card.className = "continuity-card";
         card.dataset.channel = change.channel.channel_id;
-        const thumb = change.next_media && change.next_media.thumbnail ? change.next_media.thumbnail : "logo.svg";
+        const thumb = change.next_media && change.next_media.thumbnail ? change.next_media.thumbnail : configuredLogo();
         card.innerHTML = `
           <div class="continuity-thumb-wrap">
             <img class="continuity-thumb" src="${escapeText(thumb)}" alt="" loading="eager">
@@ -855,7 +963,7 @@
       }
       const remaining = Math.max(0, Math.ceil((change.change_at_ms - Date.now()) / 1000));
       const countdown = card.querySelector(".continuity-countdown");
-      if (countdown) countdown.textContent = `EN ${String(remaining).padStart(2, "0")} s`;
+      if (countdown) countdown.textContent = `${configValue("ui.continuity.countdown_prefix", "IN")} ${String(remaining).padStart(2, "0")} s`;
       column.appendChild(card);
     });
     [...continuityCards.entries()].forEach(([key, card]) => {
@@ -868,19 +976,19 @@
   }
 
   async function loadTvData({ quiet = false } = {}) {
-    if (!quiet) setStatus("Cargando parrilla…", true);
+    if (!quiet) setStatus(configValue("ui.loading_schedule", "Loading schedule…"), true);
     try {
       const data = await fetchJson(TV_DATA_URL);
       if (Number(data.schema_version || 0) < 2 || !Array.isArray(data.channels) || !Array.isArray(data.schedule)) {
-        throw new Error("El endpoint TV todavía no está publicando schema_version 2.");
+        throw new Error(configValue("ui.errors.feed_schema", "The TV endpoint is not publishing a compatible schema."));
       }
       if (data.tv_config && data.tv_config.valid === false) log("Errores de configuración", data.tv_config.errors || []);
       tvData = data;
-      engine = new window.AVTVEngine.TVEngine(data);
+      engine = new window.TVAppEngine.TVEngine(data);
       selectedChannel = engine.resolveChannel(
         (selectedChannel && selectedChannel.channel_id) || resolveRequestedChannel()
       );
-      if (!selectedChannel) throw new Error("No hay canales activos.");
+      if (!selectedChannel) throw new Error(configValue("ui.errors.no_channels", "There are no active channels."));
       renderChannelMenu();
       updateUrlChannel(selectedChannel);
       setStatus("", false);
@@ -895,7 +1003,7 @@
     } catch (error) {
       log("Error cargando TV", String(error && error.message || error));
       trackTv("tv_error", { ...broadcastDetails(), error_code: "feed_load_error" }, true);
-      if (!engine) setStatus(`No se pudo cargar la emisión: ${error.message || error}`, true);
+      if (!engine) setStatus(`${configValue("ui.errors.feed_load", "The broadcast could not be loaded")}: ${error.message || error}`, true);
     }
   }
 
@@ -915,7 +1023,7 @@
     const button = $("soundButton");
     const label = $("soundLabel");
     const icon = $("soundIcon");
-    const actionLabel = soundEnabled ? "Silenciar" : "Activar sonido";
+    const actionLabel = soundEnabled ? configValue("ui.controls.mute", "Mute") : configValue("ui.controls.unmute", "Unmute");
 
     button.classList.add("visible");
     if (label) label.textContent = actionLabel;
@@ -947,15 +1055,15 @@
 
   function formatClock(timestampMs) {
     try {
-      return new Intl.DateTimeFormat("es-ES", {
-        timeZone: "Atlantic/Canary",
+      return new Intl.DateTimeFormat(appConfig.language || "en", {
+        timeZone: appConfig.timezone || "UTC",
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
         hour12: false
       }).format(new Date(timestampMs));
     } catch (_) {
-      return new Date(timestampMs).toLocaleTimeString("es-ES");
+      return new Date(timestampMs).toLocaleTimeString(appConfig.language || "en");
     }
   }
 
@@ -1382,7 +1490,7 @@
     const button = $("fullscreenButton");
     const label = $("fullscreenLabel");
     const active = Boolean(fullscreenElement());
-    const actionLabel = active ? "Salir de pantalla completa" : "Pantalla completa";
+    const actionLabel = active ? configValue("ui.controls.exit_fullscreen", "Exit fullscreen") : configValue("ui.controls.fullscreen", "Fullscreen");
 
     if (!fullscreenSupported()) {
       button.hidden = true;
@@ -1425,11 +1533,11 @@
   }
 
   function initPlayer() {
-    if (!window.AVTVPlayer || !window.AVTVPlayer.MultiSourcePlayer) {
-      throw new Error("No se ha cargado el reproductor multiproveedor.");
+    if (!window.TVAppPlayer || !window.TVAppPlayer.MultiSourcePlayer) {
+      throw new Error(configValue("ui.errors.player_missing", "The multi-provider player could not be loaded."));
     }
 
-    player = new window.AVTVPlayer.MultiSourcePlayer("player", {
+    player = new window.TVAppPlayer.MultiSourcePlayer("player", {
       onReady(info) {
         playerReady = true;
         player.setVolume(1);
@@ -1514,8 +1622,8 @@
   }
 
   window.onYouTubeIframeAPIReady = function onYouTubeIframeAPIReady() {
-    if (window.AVTVPlayer && window.AVTVPlayer.notifyYouTubeIframeAPIReady) {
-      window.AVTVPlayer.notifyYouTubeIframeAPIReady();
+    if (window.TVAppPlayer && window.TVAppPlayer.notifyYouTubeIframeAPIReady) {
+      window.TVAppPlayer.notifyYouTubeIframeAPIReady();
     }
   };
 
@@ -1612,6 +1720,7 @@
   }
 
   async function init() {
+    await loadAppConfig();
     initPlayer();
     bindUi();
     startTimers();

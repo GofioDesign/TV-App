@@ -1,4 +1,4 @@
-/** ARCHIPIÉLAGO VIVO TV · PROVEEDOR YOUTUBE */
+/** TV App · PROVEEDOR YOUTUBE */
 
 function parseYouTubeIdentity_(providerId, candidates) {
   let id = String(providerId || '').trim();

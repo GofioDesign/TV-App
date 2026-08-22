@@ -323,7 +323,7 @@
     _makeHost(tagName = "div") {
       this.container.replaceChildren();
       const node = document.createElement(tagName);
-      node.className = "avtv-provider-player";
+      node.className = "tvapp-provider-player";
       this.container.appendChild(node);
       return node;
     }
@@ -482,7 +482,7 @@
 
       const iframe = this._makeHost("iframe");
       iframe.src = embedUrl;
-      iframe.title = clean(media.title) || "Archipiélago Vivo TV";
+      iframe.title = clean(media.title) || clean(window.TV_APP_CONFIG && window.TV_APP_CONFIG.name) || "TV App";
       iframe.allow = "autoplay; fullscreen; picture-in-picture";
       iframe.allowFullscreen = true;
       iframe.referrerPolicy = "strict-origin-when-cross-origin";
@@ -576,7 +576,7 @@
     }
   }
 
-  window.AVTVPlayer = Object.freeze({
+  window.TVAppPlayer = Object.freeze({
     STATE,
     MultiSourcePlayer,
     normalizeProvider,
