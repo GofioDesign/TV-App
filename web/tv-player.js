@@ -576,7 +576,7 @@
     }
   }
 
-  window.AVTVPlayer = Object.freeze({
+  window.TVAppPlayer = Object.freeze({
     STATE,
     MultiSourcePlayer,
     normalizeProvider,

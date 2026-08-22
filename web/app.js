@@ -430,22 +430,22 @@
     }
 
   function mediaProvider(media) {
-    return window.AVTVPlayer
-      ? window.AVTVPlayer.normalizeProvider(media)
+    return window.TVAppPlayer
+      ? window.TVAppPlayer.normalizeProvider(media)
       : String(media && media.provider || "").trim().toLowerCase();
   }
 
   function mediaPlaybackKey(media) {
     if (!media) return "";
-    if (window.AVTVPlayer) return window.AVTVPlayer.mediaKey(media);
+    if (window.TVAppPlayer) return window.TVAppPlayer.mediaKey(media);
     return firstText(media.media_id, media.provider_id, media.youtube_id);
   }
 
   function mediaSupportedByPlayer(media) {
     return Boolean(
       media &&
-      window.AVTVPlayer &&
-      window.AVTVPlayer.isSupported(media)
+      window.TVAppPlayer &&
+      window.TVAppPlayer.isSupported(media)
     );
   }
 
@@ -461,8 +461,8 @@
     if (explicitUrl) return explicitUrl;
 
     const provider = mediaProvider(media);
-    const providerId = window.AVTVPlayer
-      ? window.AVTVPlayer.providerMediaId(media)
+    const providerId = window.TVAppPlayer
+      ? window.TVAppPlayer.providerMediaId(media)
       : firstText(media.provider_id, media.youtube_id);
 
     if (provider === "youtube" && providerId) {
@@ -984,7 +984,7 @@
       }
       if (data.tv_config && data.tv_config.valid === false) log("Errores de configuración", data.tv_config.errors || []);
       tvData = data;
-      engine = new window.AVTVEngine.TVEngine(data);
+      engine = new window.TVAppEngine.TVEngine(data);
       selectedChannel = engine.resolveChannel(
         (selectedChannel && selectedChannel.channel_id) || resolveRequestedChannel()
       );
@@ -1533,11 +1533,11 @@
   }
 
   function initPlayer() {
-    if (!window.AVTVPlayer || !window.AVTVPlayer.MultiSourcePlayer) {
+    if (!window.TVAppPlayer || !window.TVAppPlayer.MultiSourcePlayer) {
       throw new Error(configValue("ui.errors.player_missing", "The multi-provider player could not be loaded."));
     }
 
-    player = new window.AVTVPlayer.MultiSourcePlayer("player", {
+    player = new window.TVAppPlayer.MultiSourcePlayer("player", {
       onReady(info) {
         playerReady = true;
         player.setVolume(1);
@@ -1622,8 +1622,8 @@
   }
 
   window.onYouTubeIframeAPIReady = function onYouTubeIframeAPIReady() {
-    if (window.AVTVPlayer && window.AVTVPlayer.notifyYouTubeIframeAPIReady) {
-      window.AVTVPlayer.notifyYouTubeIframeAPIReady();
+    if (window.TVAppPlayer && window.TVAppPlayer.notifyYouTubeIframeAPIReady) {
+      window.TVAppPlayer.notifyYouTubeIframeAPIReady();
     }
   };
 
