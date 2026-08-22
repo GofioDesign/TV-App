@@ -46,10 +46,13 @@ const TV = Object.freeze({
   MAP_MEDIA_SOURCE: 'map-sync',
   MAP_MEDIA_SOURCES: Object.freeze(['map-sync', 'entity-sync', 'map']),
 
-  // El frontend actual sigue reproduciendo mediante YouTube IFrame API.
-  // Vimeo/PeerTube/direct se exportan, pero no se programan hasta que
-  // el frontend incorpore adaptadores de reproducción para esos proveedores.
-  FRONTEND_SUPPORTED_PROVIDERS: Object.freeze(['youtube']),
+  // El reproductor web dispone de adaptadores para los cuatro proveedores.
+  FRONTEND_SUPPORTED_PROVIDERS: Object.freeze([
+    'youtube',
+    'vimeo',
+    'peertube',
+    'direct'
+  ]),
 
   PROVIDERS: Object.freeze(['youtube', 'vimeo', 'peertube', 'direct']),
 

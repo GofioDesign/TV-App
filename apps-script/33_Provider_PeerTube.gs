@@ -27,23 +27,48 @@ function refreshTvMediaPeerTubeMetadataInternal_() {
   const sheet = getTvSheet_(TV.SHEETS.MEDIA);
   tvAssertHeaders_(sheet, TV.MEDIA_HEADERS);
   const records = tvReadObjects_(sheet).filter(function(record) {
-    return tvNormalizeProvider_(record.provider) === 'peertube';
+    return (
+      tvNormalizeProvider_(record.provider) === 'peertube' &&
+      tvBoolean_(record.refresh_metadata, false)
+    );
   });
 
   let updated = 0;
   let unavailable = 0;
+  const errors = [];
 
   records.forEach(function(record) {
     const identity = parseTvMediaIdentity_(record);
-    if (!identity || !identity.origin) { unavailable++; return; }
+    if (!identity || !identity.origin) {
+      const message = 'No se pudo resolver la identidad PeerTube.';
+      tvPatchMediaTechnical_(record._rowNumber, {
+        refresh_metadata: true,
+        metadata_refresh_error: message
+      });
+      errors.push(String(record.media_id || 'fila ' + record._rowNumber) + ': ' + message);
+      unavailable++;
+      return;
+    }
 
     try {
       const endpoint = identity.origin + '/api/v1/videos/' + encodeURIComponent(identity.provider_id);
       const response = UrlFetchApp.fetch(endpoint, {
-        method: 'get', muteHttpExceptions: true, followRedirects: true,
+        method: 'get',
+        muteHttpExceptions: true,
+        followRedirects: true,
         headers: { Accept: 'application/json' }
       });
-      if (response.getResponseCode() < 200 || response.getResponseCode() >= 300) { unavailable++; return; }
+      const responseCode = response.getResponseCode();
+      if (responseCode < 200 || responseCode >= 300) {
+        const message = 'PeerTube respondió HTTP ' + responseCode + '.';
+        tvPatchMediaTechnical_(record._rowNumber, {
+          refresh_metadata: true,
+          metadata_refresh_error: message
+        });
+        errors.push(String(record.media_id || identity.provider_id) + ': ' + message);
+        unavailable++;
+        return;
+      }
 
       const data = JSON.parse(response.getContentText() || '{}');
       const thumbnail = data.thumbnailPath
@@ -57,20 +82,39 @@ function refreshTvMediaPeerTubeMetadataInternal_() {
         : record.privacy_status || '';
 
       tvPatchMediaTechnical_(record._rowNumber, {
-        provider: 'peertube', provider_id: identity.provider_id,
-        provider_url: identity.provider_url, embed_url: identity.embed_url,
-        title: data.name || record.title || '', description: data.description || record.description || '',
-        channel_title: channelTitle, thumbnail: thumbnail,
+        provider: 'peertube',
+        provider_id: identity.provider_id,
+        provider_url: identity.provider_url,
+        embed_url: identity.embed_url,
+        title: data.name || record.title || '',
+        description: data.description || record.description || '',
+        channel_title: channelTitle,
+        thumbnail: thumbnail,
         published_at: data.publishedAt ? new Date(data.publishedAt) : record.published_at,
         duration_seconds: data.duration === undefined ? record.duration_seconds : data.duration,
-        privacy_status: privacy, embeddable: true, metadata_updated_at: new Date()
+        privacy_status: privacy,
+        embeddable: true,
+        metadata_updated_at: new Date(),
+        refresh_metadata: false,
+        metadata_refresh_error: ''
       });
       updated++;
     } catch (error) {
-      console.warn('PeerTube ' + identity.provider_id + ': ' + error.message);
+      const message = error && error.message ? error.message : String(error);
+      tvPatchMediaTechnical_(record._rowNumber, {
+        refresh_metadata: true,
+        metadata_refresh_error: message
+      });
+      console.warn('PeerTube ' + identity.provider_id + ': ' + message);
+      errors.push(String(record.media_id || identity.provider_id) + ': ' + message);
       unavailable++;
     }
   });
 
-  return { total: records.length, updated: updated, unavailable: unavailable };
+  return {
+    total: records.length,
+    updated: updated,
+    unavailable: unavailable,
+    errors: errors
+  };
 }
