@@ -1,0 +1,176 @@
+name: Apply instance-neutral engine refactor
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-instance-neutral-engine.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  refactor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/generic-engine
+          fetch-depth: 0
+
+      - name: Remove instance-specific engine strings
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          app = Path('web/app.js')
+          s = app.read_text()
+
+          def r(old, new):
+              global s
+              s = s.replace(old, new)
+
+          # Merge all instance customization sections.
+          r(
+          '''    entities: { ...(base.entities || {}), ...(value.entities || {}) },
+              analytics: { ...(base.analytics || {}), ...(value.analytics || {}) },
+              branding: { ...(base.branding || {}), ...(value.branding || {}) }
+            };''',
+          '''    entities: { ...(base.entities || {}), ...(value.entities || {}) },
+              analytics: { ...(base.analytics || {}), ...(value.analytics || {}) },
+              branding: { ...(base.branding || {}), ...(value.branding || {}) },
+              seo: { ...(base.seo || {}), ...(value.seo || {}) },
+              publisher: { ...(base.publisher || {}), ...(value.publisher || {}) },
+              navigation: { ...(base.navigation || {}), ...(value.navigation || {}) },
+              ui: {
+                ...(base.ui || {}),
+                ...(value.ui || {}),
+                labels: { ...((base.ui && base.ui.labels) || {}), ...((value.ui && value.ui.labels) || {}) },
+                participation: { ...((base.ui && base.ui.participation) || {}), ...((value.ui && value.ui.participation) || {}) },
+                share: { ...((base.ui && base.ui.share) || {}), ...((value.ui && value.ui.share) || {}) },
+                intermission: { ...((base.ui && base.ui.intermission) || {}), ...((value.ui && value.ui.intermission) || {}) },
+                continuity: { ...((base.ui && base.ui.continuity) || {}), ...((value.ui && value.ui.continuity) || {}) },
+                errors: { ...((base.ui && base.ui.errors) || {}), ...((value.ui && value.ui.errors) || {}) },
+                controls: { ...((base.ui && base.ui.controls) || {}), ...((value.ui && value.ui.controls) || {}) }
+              }
+            };''')
+
+          r('const loaded = await fetchJson("config.json");',
+            'const loaded = window.TVAppConfig && window.TVAppConfig.ready ? await window.TVAppConfig.ready : await fetchJson("config.json");')
+          r('log("config", `No se pudo cargar config.json:', 'log("config", `Could not load config.json:')
+
+          if 'function configValue(path' not in s:
+              marker = '  function mediaProvider(media) {'
+              helpers = '''  function configValue(path, fallback = "") {
+                const parts = String(path || "").split(".").filter(Boolean);
+                let value = appConfig;
+                for (const part of parts) {
+                  if (!value || typeof value !== "object" || !(part in value)) return fallback;
+                  value = value[part];
+                }
+                return value === undefined || value === null || value === "" ? fallback : value;
+              }
+
+              function formatTemplate(template, values) {
+                return String(template || "")
+                  .replace(/\\{([a-z0-9_]+)\\}/gi, (_, key) => values && values[key] != null ? String(values[key]) : "")
+                  .replace(/\\s+/g, " ")
+                  .trim();
+              }
+
+              function configuredLogo() {
+                return firstText(configValue("branding.logo"), "assets/tv-app.svg");
+              }
+
+          '''
+              s = s.replace(marker, helpers + marker)
+
+          # Share copy.
+          r('"una iniciativa"', 'configValue("ui.entity_fallback_name", "View profile")')
+          r('text: `Estoy viendo la presentación de ${entityName} en ${appConfig.name || "TV App"}`',
+            'text: formatTemplate(configValue("ui.share.entity_template", "I am watching the presentation of {entity} on {tv}"), { entity: entityName, tv: appConfig.name || "TV App" })')
+          r('"Archipiélago Vivo TV"\n    );', 'appConfig.name,\n      "TV App"\n    );')
+          r('"Canarias"\n    );', 'configValue("ui.share.default_topic")\n    );')
+          r('text: `Estoy viendo ${emission} sobre ${topic} en ${appConfig.name || "TV App"}`',
+            'text: formatTemplate(configValue("ui.share.generic_template", "I am watching {emission} on {tv}"), { emission, topic, tv: appConfig.name || "TV App" })')
+          r('// Compartimos un único cuerpo de texto:\n    // mensaje editorial + URL de Archipiélago Vivo TV.\n    //\n    // No adjuntamos miniaturas ni enviamos una URL separada a Web Share.\n    // La preview social debe salir de los metadatos Open Graph del subdominio.',
+            '// Share one editorial text body plus the configured TV URL.\n    // Social previews come from the instance Open Graph metadata.')
+          r('button.textContent = "Enlace copiado";', 'button.textContent = configValue("ui.share.copied", "Link copied");')
+          r('"Copia este contenido para compartir la emisión:",', 'configValue("ui.share.copy_prompt", "Copy this content to share the broadcast:"),')
+
+          # Analytics provider name is configured, not hardcoded.
+          s = re.sub(
+              r'''  function trackTv\(eventName, details = \{\}, includeTechnical = false\) \{\n    if \(!window\.AVAnalytics \|\| typeof window\.AVAnalytics\.track !== "function"\) return false;\n    return window\.AVAnalytics\.track\(\n      eventName,\n      includeTechnical \? \{ \.\.\.technicalContext\(\), \.\.\.details \} : details\n    \);\n  \}''',
+              '''  function trackTv(eventName, details = {}, includeTechnical = false) {
+                const analytics = appConfig.analytics || {};
+                if (analytics.enabled === false || !analytics.global_object) return false;
+                const tracker = window[analytics.global_object];
+                const method = analytics.track_method || "track";
+                if (!tracker || typeof tracker[method] !== "function") return false;
+                return tracker[method](
+                  eventName,
+                  includeTechnical ? { ...technicalContext(), ...details } : details
+                );
+              }''',
+              s
+          )
+
+          # Dynamic UI labels/copy.
+          r('channel.channel_number ? `CANAL ${channel.channel_number}` : ""', 'channel.channel_number ? `${configValue("ui.channel_label", "CHANNEL")} ${channel.channel_number}` : ""')
+          r('"Canal",\n      channelText', 'configValue("ui.labels.channel", "Channel"),\n      channelText')
+          r('"Programa",\n      program && firstText(', 'configValue("ui.labels.program", "Programme"),\n      program && firstText(')
+          r('"Ahora",\n      media && firstText(', 'configValue("ui.labels.now", "Now"),\n      media && firstText(')
+          r('`${firstText(media && media.title, media && media.name, "Vídeo")} · abrir vídeo original`',
+            'formatTemplate(configValue("ui.media_original_aria_template", "{title} · open original video"), { title: firstText(media && media.title, media && media.name, configValue("ui.video_label", "Video")) })')
+          r('"Entidad",\n      entityName', 'configValue("ui.labels.entity", "Entity"),\n      entityName')
+          r('"Territorio",\n      territory', 'configValue("ui.labels.territory", "Territory"),\n      territory')
+
+          r('media && media.thumbnail ? media.thumbnail : "logo.svg"', 'media && media.thumbnail ? media.thumbnail : configuredLogo()')
+          r('change.next_media && change.next_media.thumbnail ? change.next_media.thumbnail : "logo.svg"', 'change.next_media && change.next_media.thumbnail ? change.next_media.thumbnail : configuredLogo()')
+          r('program && program.name ? program.name : "Programación"', 'program && program.name ? program.name : configValue("ui.programming_placeholder", "Programming")')
+          r('media && media.title ? media.title : "Programación en preparación"', 'media && media.title ? media.title : configValue("ui.standby_message", "Programming in preparation")')
+          r('$("channelNumber").textContent = channel.channel_number ? `CANAL ${channel.channel_number}` : "CANAL";',
+            'const channelLabel = configValue("ui.channel_label", "CHANNEL");\n      $("channelNumber").textContent = channel.channel_number ? `${channelLabel} ${channel.channel_number}` : channelLabel;')
+          r('$("currentProgram").textContent = program && program.name ? program.name : "Programación";', '$("currentProgram").textContent = program && program.name ? program.name : configValue("ui.current_program", "Programming");')
+          r('if (copy) copy.textContent = "Programación en preparación";', 'if (copy) copy.textContent = configValue("ui.standby_message", "Programming in preparation");')
+          r('$("standbyProgram").textContent = programName || "Programación";', '$("standbyProgram").textContent = programName || configValue("ui.standby_program", "Programming");')
+          r('if (copy) copy.textContent = "ARCHIPIÉLAGO VIVO TV";', 'if (copy) copy.textContent = configValue("ui.intermission.brand_line", appConfig.name || "TV App");')
+          r('$("standbyProgram").textContent = "Continuamos en breves instantes";', '$("standbyProgram").textContent = configValue("ui.intermission.continue_message", "We will continue shortly");')
+          r('entity.name || media.title || "Ver ficha"', 'entity.name || media.title || configValue("ui.entity_fallback_name", "View profile")')
+          r('`EN ${String(remaining).padStart(2, "0")} s`', '`${configValue("ui.continuity.countdown_prefix", "IN")} ${String(remaining).padStart(2, "0")} s`')
+
+          r('setStatus("Cargando parrilla…", true)', 'setStatus(configValue("ui.loading_schedule", "Loading schedule…"), true)')
+          r('throw new Error("El endpoint TV todavía no está publicando schema_version 2.")', 'throw new Error(configValue("ui.errors.feed_schema", "The TV endpoint is not publishing a compatible schema."))')
+          r('throw new Error("No hay canales activos.")', 'throw new Error(configValue("ui.errors.no_channels", "There are no active channels."))')
+          r('setStatus(`No se pudo cargar la emisión: ${error.message || error}`, true)', 'setStatus(`${configValue("ui.errors.feed_load", "The broadcast could not be loaded")}: ${error.message || error}`, true)')
+          r('const actionLabel = soundEnabled ? "Silenciar" : "Activar sonido";', 'const actionLabel = soundEnabled ? configValue("ui.controls.mute", "Mute") : configValue("ui.controls.unmute", "Unmute");')
+          r('const actionLabel = active ? "Salir de pantalla completa" : "Pantalla completa";', 'const actionLabel = active ? configValue("ui.controls.exit_fullscreen", "Exit fullscreen") : configValue("ui.controls.fullscreen", "Fullscreen");')
+          r('throw new Error("No se ha cargado el reproductor multiproveedor.")', 'throw new Error(configValue("ui.errors.player_missing", "The multi-provider player could not be loaded."))')
+
+          app.write_text(s)
+
+          # Player is generic and uses the configured instance name when available.
+          player = Path('web/tv-player.js')
+          p = player.read_text()
+          p = p.replace('clean(media.title) || "Archipiélago Vivo TV"', 'clean(media.title) || clean(window.TV_APP_CONFIG && window.TV_APP_CONFIG.name) || "TV App"')
+          p = p.replace('className = "avtv-provider-player"', 'className = "tvapp-provider-player"')
+          player.write_text(p)
+
+          # Remove product-specific file headers and one database instruction.
+          for file in Path('apps-script').glob('*.gs'):
+              text = file.read_text()
+              text = text.replace('ARCHIPIÉLAGO VIVO TV', 'TV App')
+              text = text.replace('Archipiélago Vivo TV', 'TV App')
+              text = text.replace("'Abre TV App — DB y ejecuta setupTvProject() desde su proyecto vinculado.'", "'Open ' + (TV.DATABASE_NAME || 'TV App — DB') + ' and run setupTvProject() from its bound Apps Script project.'")
+              file.write_text(text)
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/app.js web/tv-player.js apps-script
+          git diff --cached --quiet && exit 0
+          git commit -m "refactor: make runtime engine instance-neutral"
+          git push origin HEAD:refactor/generic-engine
