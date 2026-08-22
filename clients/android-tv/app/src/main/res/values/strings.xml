@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TV App</string>
+    <string name="app_subtitle">Native Android TV client</string>
+    <string name="channel_label">Channel</string>
+    <string name="default_channel">default</string>
+</resources>
