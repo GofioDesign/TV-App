@@ -1,36 +1,104 @@
 {
-  "schema_version": 1,
-  "instance_id": "archipielago-vivo",
-  "name": "Archipiélago Vivo TV",
-  "short_name": "AV TV",
-  "language": "es",
-  "timezone": "Atlantic/Canary",
-  "site_url": "https://tv.archipielagovivo.org/",
-  "default_channel": "general",
+  "schema_version": 2,
+  "instance_id": "tv-app",
+  "name": "TV App",
+  "short_name": "TV",
+  "language": "en",
+  "locale": "en_US",
+  "timezone": "UTC",
+  "site_url": "",
+  "default_channel": "",
   "data": {
-    "feed_url": "https://data.archipielagovivo.org/tv/feed.json"
+    "feed_url": ""
   },
   "providers": ["youtube", "vimeo", "peertube", "direct"],
+  "branding": {
+    "logo": "assets/tv-app.svg",
+    "logo_alt": "TV App",
+    "social_image": "assets/social-1200x630.png",
+    "favicon": "favicon.ico",
+    "theme_color": "#000000",
+    "color_scheme": "dark",
+    "theme": "default"
+  },
+  "seo": {
+    "title": "TV App",
+    "description": "Configurable web television engine.",
+    "robots": "noindex,nofollow",
+    "canonical_url": "",
+    "og_type": "website",
+    "og_site_name": "TV App",
+    "twitter_card": "summary_large_image",
+    "twitter_site": "",
+    "twitter_creator": ""
+  },
+  "publisher": {
+    "name": "",
+    "url": "",
+    "email": ""
+  },
+  "navigation": {
+    "enabled": false,
+    "aria_label": "Main navigation",
+    "brand_url": "",
+    "items": []
+  },
+  "ui": {
+    "channel_label": "CHANNEL",
+    "loading_channel": "Loading…",
+    "current_program": "Programming",
+    "player_aria_label": "Live television broadcast",
+    "loading_schedule": "Loading schedule…",
+    "standby_message": "Programming in preparation",
+    "continuity_aria_label": "Upcoming programme changes",
+    "entity_map_label": "View profile",
+    "entity_qr_alt": "QR code for entity profile",
+    "info_panel_aria_label": "Broadcast information",
+    "info_kicker": "NOW ON AIR",
+    "info_title": "Broadcast information",
+    "info_close": "Close information",
+    "labels": {
+      "channel": "Channel",
+      "program": "Programme",
+      "now": "Now",
+      "entity": "Entity",
+      "territory": "Territory"
+    },
+    "participation": {
+      "enabled": true,
+      "label": "Participate",
+      "aria_label": "Participate in this TV",
+      "description": "Programming is collaborative. You can propose content or report an issue with this broadcast.",
+      "proposal": "Propose a video",
+      "correction": "Report an error or correction",
+      "removal": "Request removal of this video"
+    },
+    "controls": {
+      "group_aria_label": "Broadcast controls",
+      "info": "Info",
+      "share": "Share",
+      "fullscreen": "Fullscreen",
+      "exit_fullscreen": "Exit fullscreen",
+      "mute": "Mute",
+      "unmute": "Unmute"
+    }
+  },
   "requests": {
-    "enabled": true,
-    "form_url": "https://docs.google.com/forms/d/e/1FAIpQLSdhaM7hTEJRaSY8MOtgpu24R4NJwMrFi-qIL0IvR7esBiimVQ/viewform",
-    "type_entry": "entry.1784490314",
-    "url_entry": "entry.654634758",
+    "enabled": false,
+    "form_url": "",
+    "type_entry": "",
+    "url_entry": "",
     "types": {
-      "proposal": "Proponer un vídeo para Archipiélago Vivo TV",
-      "correction": "Comunicar un problema o corrección sobre un vídeo",
-      "removal": "Solicitar la retirada de un vídeo"
+      "proposal": "Propose a video",
+      "correction": "Report a problem or correction",
+      "removal": "Request video removal"
     }
   },
   "entities": {
-    "enabled": true
+    "enabled": false
   },
   "analytics": {
-    "script_url": "https://archipielagovivo.org/analytics.js"
-  },
-  "branding": {
-    "logo": "logo.svg",
-    "social_image": "logo-social-1200x630.png",
-    "theme": "default"
+    "enabled": false,
+    "script_url": ""
   }
 }
