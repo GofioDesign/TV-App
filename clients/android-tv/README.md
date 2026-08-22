@@ -34,6 +34,9 @@ The native client now establishes the first working platform contract:
 - permission and API 26+ foundation for Android TV home-screen channels;
 - the selected TV App `app.config.json` is packaged into the Android app at build time;
 - Android loads and validates that shared configuration on startup;
+- Android fetches `data.feed_url` off the main thread;
+- feed schema v2 is validated and parsed into native channel, programme, media and schedule models;
+- channel deep links are resolved against the actual feed by ID, slug or channel number;
 - no dependency on Archipiélago Vivo or any other instance.
 
 ## Build an instance-specific Android client
@@ -59,7 +62,9 @@ The Gradle task copies the selected file into the APK as:
 assets/app.config.json
 ```
 
-`InstanceConfigLoader` validates `schema_version >= 2` and reads the instance ID, name, timezone, default channel, feed URL and provider list. The next layer will fetch the feed from that configured `data.feed_url`.
+`InstanceConfigLoader` validates `schema_version >= 2` and reads the instance ID, name, timezone, default channel, feed URL and provider list.
+
+`TvFeedRepository` then downloads that configured feed and `TvFeed.parse()` enforces the minimum schema contract before the UI uses it. The first screen currently exposes feed/channel state while the deterministic broadcast resolver is being ported.
 
 The Gradle wrapper is deliberately not committed yet. Open this directory in the current stable Android Studio and generate/update the wrapper before the first device build.
 
@@ -119,11 +124,10 @@ The scaffold follows the current Android TV recommendations:
 
 ## Next implementation steps
 
-1. Fetch and validate `feed.json` schema v2.
-2. Port the deterministic schedule resolver to a shared client contract/test suite.
-3. Resolve the current broadcast for a selected channel.
-4. Map direct/HLS media to Media3.
-5. Define provider strategy for YouTube, Vimeo and PeerTube on native TV.
-6. Publish configured TV App channels and programmes to the Android TV home screen on API 26+.
-7. Add Watch Next where it makes editorial sense.
-8. Add Google Cast after native playback is stable.
+1. Port the deterministic schedule resolver to a shared client contract/test suite.
+2. Resolve the current broadcast for a selected channel using the same semantics as the browser engine.
+3. Map direct/HLS media to Media3 and start native playback at the resolved live offset.
+4. Define provider strategy for YouTube, Vimeo and PeerTube on native TV.
+5. Publish configured TV App channels and programmes to the Android TV home screen on API 26+.
+6. Add Watch Next where it makes editorial sense.
+7. Add Google Cast after native playback is stable.
