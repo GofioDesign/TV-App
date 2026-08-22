@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "instance_id": "my-tv",
+  "name": "My TV",
+  "short_name": "TV",
+  "language": "en",
+  "timezone": "UTC",
+  "site_url": "https://tv.example.org/",
+  "default_channel": "general",
+  "data": {
+    "feed_url": "https://data.example.org/tv/feed.json"
+  },
+  "providers": [
+    "youtube",
+    "vimeo",
+    "peertube",
+    "direct"
+  ],
+  "requests": {
+    "enabled": false,
+    "form_url": "",
+    "type_entry": "",
+    "url_entry": ""
+  },
+  "entities": {
+    "enabled": false
+  },
+  "analytics": {
+    "script_url": ""
+  },
+  "branding": {
+    "logo": "logo.svg",
+    "social_image": "logo-social-1200x630.png",
+    "theme": "default"
+  }
+}
