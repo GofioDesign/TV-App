@@ -1,15 +1,34 @@
 (() => {
   "use strict";
 
-  const TV_DATA_URL = "https://data.archipielagovivo.org/tv/feed.json";
-  const TV_REQUEST_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdhaM7hTEJRaSY8MOtgpu24R4NJwMrFi-qIL0IvR7esBiimVQ/viewform";
-  const TV_REQUEST_TYPE_ENTRY = "entry.1784490314";
-  const TV_REQUEST_URL_ENTRY = "entry.654634758";
-  const TV_REQUEST_TYPES = Object.freeze({
-    proposal: "Proponer un vídeo para Archipiélago Vivo TV",
-    correction: "Comunicar un problema o corrección sobre un vídeo",
-    removal: "Solicitar la retirada de un vídeo"
-  });
+  const DEFAULT_APP_CONFIG = Object.freeze({
+  schema_version: 1,
+  instance_id: "tv-app",
+  name: "TV App",
+  language: "en",
+  timezone: "UTC",
+  site_url: "",
+  default_channel: "",
+  data: Object.freeze({ feed_url: "" }),
+  requests: Object.freeze({
+    enabled: false,
+    form_url: "",
+    type_entry: "",
+    url_entry: "",
+    types: Object.freeze({
+      proposal: "Propose a video",
+      correction: "Report a problem or correction",
+      removal: "Request video removal"
+    })
+  })
+});
+
+  let appConfig = DEFAULT_APP_CONFIG;
+  let TV_DATA_URL = "";
+  let TV_REQUEST_FORM_URL = "";
+  let TV_REQUEST_TYPE_ENTRY = "";
+  let TV_REQUEST_URL_ENTRY = "";
+  let TV_REQUEST_TYPES = DEFAULT_APP_CONFIG.requests.types;
   const DATA_REFRESH_MS = 5 * 60 * 1000;
   const PLAYBACK_HEALTH_MS = 1000;
   const UI_TICK_MS = 250;
@@ -22,9 +41,8 @@
   const DEBUG_SCHEDULE_REPORT_MS = 300 * 1000;
   const DEBUG_SCHEDULE_LOOKAHEAD_SECONDS = 24 * 60 * 60;
 
-  // Archipiélago Vivo TV funciona como señal lineal:
-  // una pausa accidental o provocada por el usuario no debe dejar
-  // la instancia retrasada respecto a la emisión.
+  // TV App funciona como señal lineal: una pausa accidental o provocada
+  // por el usuario no debe dejar la instancia retrasada respecto a la emisión.
   const PAUSE_PLAY_RETRY_MS = 120;
   const PAUSE_FORCE_LIVE_MS = 1500;
 
@@ -95,20 +113,69 @@
     }
   }
 
+  function mergeAppConfig(base, override) {
+  const value = override && typeof override === "object" ? override : {};
+  return {
+    ...base,
+    ...value,
+    data: { ...(base.data || {}), ...(value.data || {}) },
+    requests: {
+      ...(base.requests || {}),
+      ...(value.requests || {}),
+      types: {
+        ...((base.requests && base.requests.types) || {}),
+        ...((value.requests && value.requests.types) || {})
+      }
+    },
+    entities: { ...(base.entities || {}), ...(value.entities || {}) },
+    analytics: { ...(base.analytics || {}), ...(value.analytics || {}) },
+    branding: { ...(base.branding || {}), ...(value.branding || {}) }
+  };
+}
+
+  async function loadAppConfig() {
+    try {
+      const loaded = await fetchJson("config.json");
+      appConfig = mergeAppConfig(DEFAULT_APP_CONFIG, loaded);
+    } catch (error) {
+      appConfig = DEFAULT_APP_CONFIG;
+      log("config", `No se pudo cargar config.json: ${error && error.message || error}`);
+    }
+
+    TV_DATA_URL = String(appConfig.data && appConfig.data.feed_url || "").trim();
+    TV_REQUEST_FORM_URL = String(appConfig.requests && appConfig.requests.form_url || "").trim();
+    TV_REQUEST_TYPE_ENTRY = String(appConfig.requests && appConfig.requests.type_entry || "").trim();
+    TV_REQUEST_URL_ENTRY = String(appConfig.requests && appConfig.requests.url_entry || "").trim();
+    TV_REQUEST_TYPES = Object.freeze({
+      ...DEFAULT_APP_CONFIG.requests.types,
+      ...((appConfig.requests && appConfig.requests.types) || {})
+    });
+
+    if (!TV_DATA_URL) {
+      throw new Error("config.json debe definir data.feed_url.");
+    }
+  }
+
+  function storageKey(name) {
+    const prefix = String(appConfig.instance_id || "tv-app").trim() || "tv-app";
+    return `${prefix}_${name}`;
+  }
+
   function resolveRequestedChannel() {
     const params = new URLSearchParams(location.search);
-    return params.get("channel") || localStorage.getItem("avtv_channel") || null;
+    return params.get("channel") || localStorage.getItem(storageKey("channel")) || appConfig.default_channel || null;
   }
 
   function updateUrlChannel(channel) {
     const url = new URL(location.href);
     url.searchParams.set("channel", channel.slug || channel.channel_id);
     history.replaceState({}, "", url);
-    localStorage.setItem("avtv_channel", channel.slug || channel.channel_id);
+    localStorage.setItem(storageKey("channel"), channel.slug || channel.channel_id);
   }
 
   function channelShareUrl(channel = selectedChannel) {
-    const url = new URL("https://tv.archipielagovivo.org/");
+    const baseUrl = String(appConfig.site_url || "").trim() || `${location.origin}/`;
+    const url = new URL(baseUrl);
     if (channel) {
       url.searchParams.set(
         "channel",
@@ -142,12 +209,12 @@
         entity.name,
         entity.title,
         media.title,
-        "una iniciativa de Archipiélago Vivo"
+        "una iniciativa"
       );
 
       return {
         title: entityName,
-        text: `Estoy viendo la presentación de ${entityName} en Archipiélago Vivo TV`,
+        text: `Estoy viendo la presentación de ${entityName} en ${appConfig.name || "TV App"}`,
         url
       };
     }
@@ -167,7 +234,7 @@
 
     return {
       title: emission,
-      text: `Estoy viendo ${emission} sobre ${topic} en Archipiélago Vivo TV`,
+      text: `Estoy viendo ${emission} sobre ${topic} en ${appConfig.name || "TV App"}`,
       url
     };
   }
@@ -194,7 +261,7 @@
     if (navigator.share) {
       try {
         await navigator.share({
-          title: payload.title || "Archipiélago Vivo TV",
+          title: payload.title || appConfig.name || "TV App",
           text: shareText
         });
         return;
@@ -378,22 +445,25 @@
   }
 
   function tvRequestUrl(requestType, mediaUrl = "") {
-    const url = new URL(TV_REQUEST_FORM_URL);
-    url.searchParams.set("usp", "pp_url");
-    url.searchParams.set(TV_REQUEST_TYPE_ENTRY, requestType);
+  if (!appConfig.requests || !appConfig.requests.enabled || !TV_REQUEST_FORM_URL) return "";
 
-    if (mediaUrl) {
-      url.searchParams.set(TV_REQUEST_URL_ENTRY, mediaUrl);
-    }
+  const url = new URL(TV_REQUEST_FORM_URL);
+  url.searchParams.set("usp", "pp_url");
+  if (TV_REQUEST_TYPE_ENTRY) url.searchParams.set(TV_REQUEST_TYPE_ENTRY, requestType);
 
-    return url.toString();
+  if (mediaUrl && TV_REQUEST_URL_ENTRY) {
+    url.searchParams.set(TV_REQUEST_URL_ENTRY, mediaUrl);
   }
+
+  return url.toString();
+}
 
   function setTvRequestLink(id, requestType, mediaUrl = "", requiresMedia = false) {
     const link = $(id);
     if (!link) return;
 
-    const enabled = !requiresMedia || Boolean(mediaUrl);
+    const requestUrl = tvRequestUrl(requestType, mediaUrl);
+    const enabled = Boolean(requestUrl) && (!requiresMedia || Boolean(mediaUrl));
     link.hidden = !enabled;
 
     if (!enabled) {
@@ -401,7 +471,7 @@
       return;
     }
 
-    link.href = tvRequestUrl(requestType, mediaUrl);
+    link.href = requestUrl;
   }
 
   function currentEntity(broadcast = currentBroadcast) {
@@ -947,15 +1017,15 @@
 
   function formatClock(timestampMs) {
     try {
-      return new Intl.DateTimeFormat("es-ES", {
-        timeZone: "Atlantic/Canary",
+      return new Intl.DateTimeFormat(appConfig.language || "en", {
+        timeZone: appConfig.timezone || "UTC",
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
         hour12: false
       }).format(new Date(timestampMs));
     } catch (_) {
-      return new Date(timestampMs).toLocaleTimeString("es-ES");
+      return new Date(timestampMs).toLocaleTimeString(appConfig.language || "en");
     }
   }
 
@@ -1612,6 +1682,7 @@
   }
 
   async function init() {
+    await loadAppConfig();
     initPlayer();
     bindUi();
     startTimers();
