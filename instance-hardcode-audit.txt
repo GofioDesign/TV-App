@@ -1,6 +1,0 @@
-# Instance hardcode audit
-
-The following matches are outside presets/ and must be reviewed:
-
-docs/ARCHITECTURE.md:35:Archipiélago Vivo is therefore treated as the first TV App instance, not as part of the generic engine itself.
-docs/ARCHITECTURE.md:75:The `main` branch preserves the imported working baseline while genericization is developed in `refactor/generic-engine` until the engine can reproduce the Archipiélago Vivo instance from configuration.
