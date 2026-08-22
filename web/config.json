@@ -15,7 +15,12 @@
     "enabled": true,
     "form_url": "https://docs.google.com/forms/d/e/1FAIpQLSdhaM7hTEJRaSY8MOtgpu24R4NJwMrFi-qIL0IvR7esBiimVQ/viewform",
     "type_entry": "entry.1784490314",
-    "url_entry": "entry.654634758"
+    "url_entry": "entry.654634758",
+    "types": {
+      "proposal": "Proponer un vídeo para Archipiélago Vivo TV",
+      "correction": "Comunicar un problema o corrección sobre un vídeo",
+      "removal": "Solicitar la retirada de un vídeo"
+    }
   },
   "entities": {
     "enabled": true
