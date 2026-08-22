@@ -1,0 +1,57 @@
+name: Validate TV App
+
+on:
+  push:
+    branches:
+      - main
+      - refactor/generic-engine
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check web/runtime-config.js
+          node --check web/app.js
+          node --check web/tv-engine.js
+          node --check web/tv-player.js
+          node --check scripts/build-instance.js
+
+      - name: Validate JSON
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('web/config.json','utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('web/config.example.json','utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('presets/archipielago-vivo/app.config.json','utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('apps-script/appsscript.json','utf8'))"
+
+      - name: Build generic instance
+        run: node scripts/build-instance.js web/config.json dist/ci-generic
+
+      - name: Build reference preset
+        run: node scripts/build-instance.js presets/archipielago-vivo/app.config.json dist/ci-archipielago-vivo
+
+      - name: Verify generated outputs
+        run: |
+          test -f dist/ci-generic/web/config.json
+          test -f dist/ci-generic/apps-script/00_Instance_Config.gs
+          test -f dist/ci-archipielago-vivo/web/config.json
+          test -f dist/ci-archipielago-vivo/web/CNAME
+          test -f dist/ci-archipielago-vivo/apps-script/00_Instance_Config.gs
+          grep -q 'Archipiélago Vivo TV' dist/ci-archipielago-vivo/apps-script/00_Instance_Config.gs
+          grep -q 'tv.archipielagovivo.org' dist/ci-archipielago-vivo/web/CNAME
+
+      - name: Ensure generic engine has no instance hardcodes
+        run: |
+          ! grep -RniE 'Archipi[eé]lago Vivo|archipielagovivo|ARCHIPI[EÉ]LAGO VIVO|AVAnalytics' web apps-script scripts \
+            --exclude='config.example.json'
