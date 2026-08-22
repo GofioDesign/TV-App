@@ -1,5 +1,5 @@
 {
-  "timeZone": "Atlantic/Canary",
+  "timeZone": "UTC",
   "dependencies": {
     "enabledAdvancedServices": [
       {
