@@ -1,0 +1,208 @@
+name: Refactor generic frontend config
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/refactor-generic-step1.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  refactor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/generic-engine
+
+      - name: Externalize frontend runtime configuration
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          path = Path("web/app.js")
+          s = path.read_text()
+
+          new_top = '''  const DEFAULT_APP_CONFIG = Object.freeze({
+            schema_version: 1,
+            instance_id: "tv-app",
+            name: "TV App",
+            language: "en",
+            timezone: "UTC",
+            site_url: "",
+            default_channel: "",
+            data: Object.freeze({ feed_url: "" }),
+            requests: Object.freeze({
+              enabled: false,
+              form_url: "",
+              type_entry: "",
+              url_entry: "",
+              types: Object.freeze({
+                proposal: "Propose a video",
+                correction: "Report a problem or correction",
+                removal: "Request video removal"
+              })
+            })
+          });
+
+            let appConfig = DEFAULT_APP_CONFIG;
+            let TV_DATA_URL = "";
+            let TV_REQUEST_FORM_URL = "";
+            let TV_REQUEST_TYPE_ENTRY = "";
+            let TV_REQUEST_URL_ENTRY = "";
+            let TV_REQUEST_TYPES = DEFAULT_APP_CONFIG.requests.types;'''
+
+          s, n = re.subn(
+              r'  const TV_DATA_URL = .*?\n  const TV_REQUEST_TYPES = Object\.freeze\(\{.*?\n  \}\);',
+              new_top,
+              s,
+              count=1,
+              flags=re.S,
+          )
+          assert n == 1, f"top block replacements={n}"
+
+          s = s.replace(
+              '  // Archipiélago Vivo TV funciona como señal lineal:\n  // una pausa accidental o provocada por el usuario no debe dejar\n  // la instancia retrasada respecto a la emisión.',
+              '  // TV App funciona como señal lineal: una pausa accidental o provocada\n  // por el usuario no debe dejar la instancia retrasada respecto a la emisión.'
+          )
+
+          config_helpers = '''  function mergeAppConfig(base, override) {
+            const value = override && typeof override === "object" ? override : {};
+            return {
+              ...base,
+              ...value,
+              data: { ...(base.data || {}), ...(value.data || {}) },
+              requests: {
+                ...(base.requests || {}),
+                ...(value.requests || {}),
+                types: {
+                  ...((base.requests && base.requests.types) || {}),
+                  ...((value.requests && value.requests.types) || {})
+                }
+              },
+              entities: { ...(base.entities || {}), ...(value.entities || {}) },
+              analytics: { ...(base.analytics || {}), ...(value.analytics || {}) },
+              branding: { ...(base.branding || {}), ...(value.branding || {}) }
+            };
+          }
+
+            async function loadAppConfig() {
+              try {
+                const loaded = await fetchJson("config.json");
+                appConfig = mergeAppConfig(DEFAULT_APP_CONFIG, loaded);
+              } catch (error) {
+                appConfig = DEFAULT_APP_CONFIG;
+                log("config", `No se pudo cargar config.json: ${error && error.message || error}`);
+              }
+
+              TV_DATA_URL = String(appConfig.data && appConfig.data.feed_url || "").trim();
+              TV_REQUEST_FORM_URL = String(appConfig.requests && appConfig.requests.form_url || "").trim();
+              TV_REQUEST_TYPE_ENTRY = String(appConfig.requests && appConfig.requests.type_entry || "").trim();
+              TV_REQUEST_URL_ENTRY = String(appConfig.requests && appConfig.requests.url_entry || "").trim();
+              TV_REQUEST_TYPES = Object.freeze({
+                ...DEFAULT_APP_CONFIG.requests.types,
+                ...((appConfig.requests && appConfig.requests.types) || {})
+              });
+
+              if (!TV_DATA_URL) {
+                throw new Error("config.json debe definir data.feed_url.");
+              }
+            }
+
+            function storageKey(name) {
+              const prefix = String(appConfig.instance_id || "tv-app").trim() || "tv-app";
+              return `${prefix}_${name}`;
+            }
+
+          '''
+          marker = '  function resolveRequestedChannel() {'
+          assert marker in s
+          s = s.replace(marker, config_helpers + marker, 1)
+
+          replacements = {
+              'return params.get("channel") || localStorage.getItem("avtv_channel") || null;':
+                  'return params.get("channel") || localStorage.getItem(storageKey("channel")) || appConfig.default_channel || null;',
+              'localStorage.setItem("avtv_channel", channel.slug || channel.channel_id);':
+                  'localStorage.setItem(storageKey("channel"), channel.slug || channel.channel_id);',
+              'const url = new URL("https://tv.archipielagovivo.org/");':
+                  'const baseUrl = String(appConfig.site_url || "").trim() || `${location.origin}/`;\n    const url = new URL(baseUrl);',
+              '"una iniciativa de Archipiélago Vivo"': '"una iniciativa"',
+              'text: `Estoy viendo la presentación de ${entityName} en Archipiélago Vivo TV`,':
+                  'text: `Estoy viendo la presentación de ${entityName} en ${appConfig.name || "TV App"}`,',
+              'text: `Estoy viendo ${emission} sobre ${topic} en Archipiélago Vivo TV`,':
+                  'text: `Estoy viendo ${emission} sobre ${topic} en ${appConfig.name || "TV App"}`,',
+              'title: payload.title || "Archipiélago Vivo TV",':
+                  'title: payload.title || appConfig.name || "TV App",',
+              'return new Intl.DateTimeFormat("es-ES", {\n        timeZone: "Atlantic/Canary",':
+                  'return new Intl.DateTimeFormat(appConfig.language || "en", {\n        timeZone: appConfig.timezone || "UTC",',
+              'return new Date(timestampMs).toLocaleTimeString("es-ES");':
+                  'return new Date(timestampMs).toLocaleTimeString(appConfig.language || "en");',
+              'async function init() {\n    initPlayer();':
+                  'async function init() {\n    await loadAppConfig();\n    initPlayer();',
+          }
+          for old, new in replacements.items():
+              assert old in s, old
+              s = s.replace(old, new, 1)
+
+          s = s.replace('''      "Archipiélago Vivo TV"
+            );''', '''      appConfig.name || "TV App"
+            );''', 1)
+          s = s.replace('''      "Canarias"
+            );''', '''      selectedChannel && selectedChannel.name || "TV"
+            );''', 1)
+
+          new_request = '''  function tvRequestUrl(requestType, mediaUrl = "") {
+            if (!appConfig.requests || !appConfig.requests.enabled || !TV_REQUEST_FORM_URL) return "";
+
+            const url = new URL(TV_REQUEST_FORM_URL);
+            url.searchParams.set("usp", "pp_url");
+            if (TV_REQUEST_TYPE_ENTRY) url.searchParams.set(TV_REQUEST_TYPE_ENTRY, requestType);
+
+            if (mediaUrl && TV_REQUEST_URL_ENTRY) {
+              url.searchParams.set(TV_REQUEST_URL_ENTRY, mediaUrl);
+            }
+
+            return url.toString();
+          }
+
+            function setTvRequestLink(id, requestType, mediaUrl = "", requiresMedia = false) {
+              const link = $(id);
+              if (!link) return;
+
+              const requestUrl = tvRequestUrl(requestType, mediaUrl);
+              const enabled = Boolean(requestUrl) && (!requiresMedia || Boolean(mediaUrl));
+              link.hidden = !enabled;
+
+              if (!enabled) {
+                link.removeAttribute("href");
+                return;
+              }
+
+              link.href = requestUrl;
+            }
+
+          '''
+          s, n = re.subn(
+              r'  function tvRequestUrl\(requestType, mediaUrl = ""\) \{.*?\n  function currentEntity\(',
+              new_request + '  function currentEntity(',
+              s,
+              count=1,
+              flags=re.S,
+          )
+          assert n == 1, f"request block replacements={n}"
+
+          path.write_text(s)
+
+      - name: Validate JavaScript
+        run: node --check web/app.js
+
+      - name: Commit refactor branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/app.js
+          git commit -m "refactor: load runtime settings from config.json"
+          git push origin HEAD:refactor/generic-engine
