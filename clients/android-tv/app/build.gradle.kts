@@ -3,6 +3,16 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+val tvAppConfig = providers.gradleProperty("tvAppConfig")
+    .orElse("../../web/config.json")
+val generatedTvAppAssets = layout.buildDirectory.dir("generated/tvapp/assets")
+
+val generateTvAppInstanceConfig by tasks.registering(Copy::class) {
+    from(rootProject.file(tvAppConfig.get()))
+    into(generatedTvAppAssets)
+    rename { "app.config.json" }
+}
+
 android {
     namespace = "org.gofiodesign.tvapp.androidtv"
     compileSdk = 37
@@ -20,10 +30,16 @@ android {
         buildConfig = true
     }
 
+    sourceSets.getByName("main").assets.srcDir(generatedTvAppAssets)
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+tasks.named("preBuild").configure {
+    dependsOn(generateTvAppInstanceConfig)
 }
 
 dependencies {
