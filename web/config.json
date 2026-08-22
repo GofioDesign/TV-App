@@ -8,14 +8,12 @@
   "timezone": "UTC",
   "site_url": "",
   "default_channel": "",
-  "data": {
-    "feed_url": ""
-  },
+  "data": {"feed_url": ""},
   "providers": ["youtube", "vimeo", "peertube", "direct"],
   "branding": {
     "logo": "assets/tv-app.svg",
     "logo_alt": "TV App",
-    "social_image": "assets/social-1200x630.png",
+    "social_image": "",
     "favicon": "favicon.ico",
     "theme_color": "#000000",
     "color_scheme": "dark",
@@ -32,11 +30,7 @@
     "twitter_site": "",
     "twitter_creator": ""
   },
-  "publisher": {
-    "name": "",
-    "url": "",
-    "email": ""
-  },
+  "publisher": {"name": "", "url": "", "email": ""},
   "navigation": {
     "enabled": false,
     "aria_label": "Main navigation",
@@ -46,13 +40,18 @@
   "ui": {
     "channel_label": "CHANNEL",
     "loading_channel": "Loading…",
+    "programming_placeholder": "Programming",
     "current_program": "Programming",
     "player_aria_label": "Live television broadcast",
     "loading_schedule": "Loading schedule…",
     "standby_message": "Programming in preparation",
+    "standby_program": "Programming",
     "continuity_aria_label": "Upcoming programme changes",
     "entity_map_label": "View profile",
     "entity_qr_alt": "QR code for entity profile",
+    "entity_fallback_name": "View profile",
+    "video_label": "Video",
+    "media_original_aria_template": "{title} · open original video",
     "info_panel_aria_label": "Broadcast information",
     "info_kicker": "NOW ON AIR",
     "info_title": "Broadcast information",
@@ -72,6 +71,26 @@
       "proposal": "Propose a video",
       "correction": "Report an error or correction",
       "removal": "Request removal of this video"
+    },
+    "share": {
+      "entity_template": "I'm watching the presentation of {entity} on {tv}",
+      "generic_template": "I'm watching {emission} on {tv}",
+      "default_topic": "",
+      "copied": "Link copied",
+      "copy_prompt": "Copy this content to share the broadcast:"
+    },
+    "intermission": {
+      "brand_line": "TV App",
+      "continue_message": "We will continue shortly"
+    },
+    "continuity": {
+      "countdown_prefix": "IN"
+    },
+    "errors": {
+      "feed_schema": "The TV endpoint is not publishing a compatible schema.",
+      "no_channels": "There are no active channels.",
+      "feed_load": "The broadcast could not be loaded",
+      "player_missing": "The multi-provider player could not be loaded."
     },
     "controls": {
       "group_aria_label": "Broadcast controls",
@@ -94,11 +113,11 @@
       "removal": "Request video removal"
     }
   },
-  "entities": {
-    "enabled": false
-  },
+  "entities": {"enabled": false},
   "analytics": {
     "enabled": false,
-    "script_url": ""
+    "script_url": "",
+    "global_object": "",
+    "track_method": "track"
   }
 }
