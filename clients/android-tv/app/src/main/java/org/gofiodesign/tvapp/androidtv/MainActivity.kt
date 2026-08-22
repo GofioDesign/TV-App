@@ -15,16 +15,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import org.gofiodesign.tvapp.androidtv.data.InstanceConfig
+import org.gofiodesign.tvapp.androidtv.data.InstanceConfigLoader
 
 class MainActivity : ComponentActivity() {
 
     private val requestedChannel = mutableStateOf<String?>(null)
+    private val instanceConfig = mutableStateOf<InstanceConfig?>(null)
+    private val configurationError = mutableStateOf<String?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestedChannel.value = resolveChannel(intent)
 
+        runCatching { InstanceConfigLoader.load(this) }
+            .onSuccess { instanceConfig.value = it }
+            .onFailure { configurationError.value = it.message ?: it.toString() }
+
         setContent {
+            val config = instanceConfig.value
+            val selectedChannel = requestedChannel.value
+                ?: config?.defaultChannel
+
             MaterialTheme {
                 Column(
                     modifier = Modifier
@@ -33,14 +45,20 @@ class MainActivity : ComponentActivity() {
                         .padding(48.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(text = "TV App")
-                    Text(text = "Native Android TV client foundation")
-                    Text(
-                        text = requestedChannel.value
-                            ?.let { "Requested channel: $it" }
-                            ?: "No channel selected yet"
-                    )
-                    Text(text = "Next: load app.config.json + feed.json and resolve the live broadcast.")
+                    Text(text = config?.name ?: "TV App")
+                    Text(text = "Native Android TV client")
+
+                    configurationError.value?.let { error ->
+                        Text(text = "Configuration error: $error")
+                    }
+
+                    if (config != null) {
+                        Text(text = "Instance: ${config.instanceId}")
+                        Text(text = "Channel: ${selectedChannel ?: config.defaultChannel}")
+                        Text(text = "Feed: ${config.feedUrl}")
+                        Text(text = "Providers: ${config.providers.joinToString()}")
+                        Text(text = "Next: fetch feed.json and resolve the current broadcast.")
+                    }
                 }
             }
         }
