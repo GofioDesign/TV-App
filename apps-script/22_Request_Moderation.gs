@@ -1,4 +1,4 @@
-/** ARCHIPIÉLAGO VIVO TV · MODERACIÓN DE SOLICITUDES */
+/** TV App · MODERACIÓN DE SOLICITUDES */
 
 function getSelectedTvRequest_() {
   const sheet = SpreadsheetApp.getActiveSheet();

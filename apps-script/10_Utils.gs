@@ -1,11 +1,11 @@
-/** ARCHIPIÉLAGO VIVO TV · UTILIDADES */
+/** TV App · UTILIDADES */
 
 function setupTvProject() {
   const active = SpreadsheetApp.getActiveSpreadsheet();
 
   if (!active) {
     throw new Error(
-      'Abre Archipiélago Vivo TV — DB y ejecuta setupTvProject() desde su proyecto vinculado.'
+      'Open ' + (TV.DATABASE_NAME || 'TV App — DB') + ' and run setupTvProject() from its bound Apps Script project.'
     );
   }
 

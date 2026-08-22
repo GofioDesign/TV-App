@@ -1,4 +1,4 @@
-/** ARCHIPIÉLAGO VIVO TV · EXPORT PÚBLICO · SCHEMA v2 */
+/** TV App · EXPORT PÚBLICO · SCHEMA v2 */
 
 function buildTvExport() {
   const validation = validateTvProject();

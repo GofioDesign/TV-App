@@ -1,4 +1,4 @@
-/** ARCHIPIÉLAGO VIVO TV · PROVEEDOR PEERTUBE */
+/** TV App · PROVEEDOR PEERTUBE */
 
 function parsePeerTubeIdentity_(providerId, candidates) {
   let id = String(providerId || '').trim();

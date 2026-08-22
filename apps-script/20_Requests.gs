@@ -1,5 +1,5 @@
 /**
- * ARCHIPIÉLAGO VIVO TV · SOLICITUDES
+ * TV App · SOLICITUDES
  *
  * Google Forms escribe únicamente en Form_Responses.
  * Esta capa crea/actualiza la vista operativa _tv_requests.

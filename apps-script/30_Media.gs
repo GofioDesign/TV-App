@@ -1,4 +1,4 @@
-/** ARCHIPIÉLAGO VIVO TV · CATÁLOGO MULTIPROVEEDOR */
+/** TV App · CATÁLOGO MULTIPROVEEDOR */
 
 function normalizeTvMediaProviders() {
   const sheet = getTvSheet_(TV.SHEETS.MEDIA);
