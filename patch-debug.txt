@@ -1,0 +1,6 @@
+app_bytes=53256
+'Archipiélago Vivo TV'=2
+'window.AVAnalytics'=3
+'ARCHIPIÉLAGO VIVO TV'=1
+'const loaded = await fetchJson("config.json");'=1
+'branding: { ...(base.branding || {}), ...(value.branding || {}) }'=1
