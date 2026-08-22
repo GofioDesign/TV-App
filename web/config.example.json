@@ -8,16 +8,35 @@
   "timezone": "UTC",
   "site_url": "https://tv.example.org/",
   "default_channel": "general",
-  "data": {"feed_url": "https://data.example.org/tv/feed.json"},
-  "providers": ["youtube", "vimeo", "peertube", "direct"],
+  "data": {
+    "feed_url": "https://data.example.org/tv/feed.json"
+  },
+  "providers": [
+    "youtube",
+    "vimeo",
+    "peertube",
+    "direct"
+  ],
   "branding": {
     "logo": "assets/my-tv.svg",
     "logo_alt": "My TV",
     "social_image": "assets/social-1200x630.png",
-    "favicon": "favicon.ico",
+    "favicon": "assets/favicon.ico",
     "theme_color": "#000000",
     "color_scheme": "dark",
-    "theme": "default"
+    "theme": "default",
+    "icons": [
+      {
+        "src": "assets/icon-192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "assets/icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
   },
   "seo": {
     "title": "My TV | Online television",
@@ -40,9 +59,19 @@
     "aria_label": "Main navigation",
     "brand_url": "https://example.org/",
     "items": [
-      {"label": "Home", "url": "https://example.org/"},
-      {"label": "TV", "url": "https://tv.example.org/", "current": true},
-      {"label": "Contact", "url": "https://example.org/contact"}
+      {
+        "label": "Home",
+        "url": "https://example.org/"
+      },
+      {
+        "label": "TV",
+        "url": "https://tv.example.org/",
+        "current": true
+      },
+      {
+        "label": "Contact",
+        "url": "https://example.org/contact"
+      }
     ]
   },
   "ui": {
@@ -91,7 +120,9 @@
       "brand_line": "My TV",
       "continue_message": "We will continue shortly"
     },
-    "continuity": {"countdown_prefix": "IN"},
+    "continuity": {
+      "countdown_prefix": "IN"
+    },
     "errors": {
       "feed_schema": "The TV endpoint is not publishing a compatible schema.",
       "no_channels": "There are no active channels.",
@@ -119,11 +150,40 @@
       "removal": "Request video removal"
     }
   },
-  "entities": {"enabled": false},
+  "entities": {
+    "enabled": false
+  },
   "analytics": {
     "enabled": false,
     "script_url": "",
     "global_object": "",
     "track_method": "track"
+  },
+  "deployment": {
+    "cname": "tv.example.org"
+  },
+  "backend": {
+    "menu_name": "My TV",
+    "database_name": "My TV — DB",
+    "public_feed_target": "https://data.example.org/tv/feed.json",
+    "default_channel_id": "general",
+    "entity_program_id": "entities",
+    "default_status": "Active",
+    "request_pending_status": "Pending",
+    "media_status_active": "Active",
+    "media_status_inactive": "Inactive",
+    "media_status_retired": "Retired",
+    "media_status_pending_review": "Pending review",
+    "orphaned_relation_reason": "orphaned_entity_relation",
+    "entity_relation_type": "entity_profile",
+    "entity_media_source": "entity-sync",
+    "entity_media_sources": [
+      "entity-sync"
+    ],
+    "external_rights_allowed": [
+      "embed_only",
+      "authorized"
+    ],
+    "new_entity_hours": 72
   }
 }

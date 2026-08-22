@@ -15,7 +15,7 @@
       logo: "assets/tv-app.svg",
       logo_alt: "TV App",
       social_image: "",
-      favicon: "favicon.ico",
+      favicon: "assets/tv-app.svg",
       theme_color: "#000000",
       color_scheme: "dark",
       theme: "default"

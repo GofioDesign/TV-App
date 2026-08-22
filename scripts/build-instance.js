@@ -271,7 +271,7 @@ function buildWebManifest(c) {
     display: 'standalone',
     background_color: b.theme_color || '#000000',
     theme_color: b.theme_color || '#000000',
-    icons: []
+    icons: Array.isArray(b.icons) ? b.icons : []
   };
 }
 

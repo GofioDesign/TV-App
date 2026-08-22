@@ -8,8 +8,15 @@
   "timezone": "UTC",
   "site_url": "",
   "default_channel": "general",
-  "data": {"feed_url": ""},
-  "providers": ["youtube", "vimeo", "peertube", "direct"],
+  "data": {
+    "feed_url": ""
+  },
+  "providers": [
+    "youtube",
+    "vimeo",
+    "peertube",
+    "direct"
+  ],
   "backend": {
     "menu_name": "TV App",
     "database_name": "TV App — DB",
@@ -25,18 +32,24 @@
     "orphaned_relation_reason": "orphaned_entity_relation",
     "entity_relation_type": "entity_profile",
     "entity_media_source": "entity-sync",
-    "entity_media_sources": ["entity-sync"],
-    "external_rights_allowed": ["embed_only", "authorized"],
+    "entity_media_sources": [
+      "entity-sync"
+    ],
+    "external_rights_allowed": [
+      "embed_only",
+      "authorized"
+    ],
     "new_entity_hours": 72
   },
   "branding": {
     "logo": "assets/tv-app.svg",
     "logo_alt": "TV App",
     "social_image": "",
-    "favicon": "favicon.ico",
+    "favicon": "assets/tv-app.svg",
     "theme_color": "#000000",
     "color_scheme": "dark",
-    "theme": "default"
+    "theme": "default",
+    "icons": []
   },
   "seo": {
     "title": "TV App",
@@ -49,7 +62,11 @@
     "twitter_site": "",
     "twitter_creator": ""
   },
-  "publisher": {"name": "", "url": "", "email": ""},
+  "publisher": {
+    "name": "",
+    "url": "",
+    "email": ""
+  },
   "navigation": {
     "enabled": false,
     "aria_label": "Main navigation",
@@ -102,7 +119,9 @@
       "brand_line": "TV App",
       "continue_message": "We will continue shortly"
     },
-    "continuity": {"countdown_prefix": "IN"},
+    "continuity": {
+      "countdown_prefix": "IN"
+    },
     "errors": {
       "feed_schema": "The TV endpoint is not publishing a compatible schema.",
       "no_channels": "There are no active channels.",
@@ -130,11 +149,16 @@
       "removal": "Request video removal"
     }
   },
-  "entities": {"enabled": false},
+  "entities": {
+    "enabled": false
+  },
   "analytics": {
     "enabled": false,
     "script_url": "",
     "global_object": "",
     "track_method": "track"
+  },
+  "deployment": {
+    "cname": ""
   }
 }
